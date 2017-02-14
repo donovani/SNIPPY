@@ -1,0 +1,31 @@
+allprojects {
+	apply plugin: "eclipse"
+	apply plugin: "idea"
+
+	version = '1.0'
+
+	ext {
+		appName = "SNIPPY"
+		jfoenixVersion = "1.1.0"
+	}
+
+	repositories {
+		mavenLocal()
+		mavenCentral()
+		maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+		maven { url "https://oss.sonatype.org/content/groups/public" }
+		jcenter()
+	}
+}
+
+project("application") {
+	apply plugin: "java"
+
+	dependencies {
+		compile "com.jfoenix:jfoenix:$jfoenixVersion"
+	}
+}
+
+tasks.eclipse.doLast {
+	delete ".project"
+}

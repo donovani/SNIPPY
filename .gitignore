@@ -3,10 +3,44 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files #
+# Package Files 
 *.jar
 *.war
 *.ear
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Gradle build files/artifacts
+.gradle/*/taskArtifacts/
+*/build/
+build/
+
+# Intellij
+.idea/
+*.ipr
+*.iws
+*.iml
+out/
+
+# Eclipse
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+.settings/
+.loadpath
+.recommenders
+.recommenders/
+.project
+
+# Extensions
+.externalToolBuilders/
+*.launch
+.cproject
+.classpath
+.buildpath
+.target
+
+# virtual machine crash logs
 hs_err_pid*
