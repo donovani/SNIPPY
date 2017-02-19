@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.paint.*?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #f8f8f8;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <JFXTextField fx:id="login_username" alignment="CENTER" focusColor="#ff6600" layoutX="233.0" layoutY="188.0" promptText="u s e r n a m e" />
+      <Label fx:id="login_error" layoutX="262.0" layoutY="223.0" text="Error Message" textAlignment="CENTER" textFill="RED" />
+      <JFXButton fx:id="login" layoutX="274.0" layoutY="248.0" style="-fx-background-color: #00ccdd;" text="NEXT" textFill="WHITE" />
+      <JFXButton fx:id="login_register" layoutX="275.0" layoutY="374.0" prefHeight="25.0" prefWidth="50.0" text="cancel" textAlignment="RIGHT" textFill="#444444" />
+      <ImageView fx:id="login_logo" fitHeight="50.0" fitWidth="50.0" layoutX="272.0" layoutY="6.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/logo.png" />
+         </image>
+      </ImageView>
+      <Text fx:id="login_title" fontSmoothingType="LCD" layoutX="278.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="SNIPPY" textAlignment="CENTER" />
+      <Text fx:id="login_title1" fontSmoothingType="LCD" layoutX="194.0" layoutY="184.0" strokeType="OUTSIDE" strokeWidth="0.0" text="What account are you trying to recover?" textAlignment="CENTER" />
+   </children>
+</Pane>
