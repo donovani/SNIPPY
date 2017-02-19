@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.paint.*?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #f8f8f8;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <JFXTextField fx:id="login_username" alignment="CENTER" focusColor="#ff6600" layoutX="233.0" layoutY="163.0" promptText="u s e r n a m e" />
+      <JFXPasswordField fx:id="login_password" alignment="CENTER" focusColor="#ff6600" layoutX="233.0" layoutY="188.0" promptText="p a s s w o r d" />
+      <Label fx:id="login_error" layoutX="262.0" layoutY="223.0" text="Error Message" textAlignment="CENTER" />
+      <JFXButton fx:id="register_submit" layoutX="266.0" layoutY="248.0" style="-fx-background-color: #00ccdd;" text="REGISTER" textFill="WHITE" />
+      <JFXButton fx:id="register_cancel" layoutX="274.0" layoutY="374.0" prefHeight="25.0" prefWidth="51.0" text="cancel" textAlignment="RIGHT" textFill="#444444" />
+      <ImageView fx:id="login_logo" fitHeight="50.0" fitWidth="50.0" layoutX="272.0" layoutY="6.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/logo.png" />
+         </image>
+      </ImageView>
+      <Text fx:id="login_title" fontSmoothingType="LCD" layoutX="278.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="SNIPPY" textAlignment="CENTER" />
+   </children>
+</Pane>
