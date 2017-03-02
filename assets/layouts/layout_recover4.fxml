@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.paint.*?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #f8f8f8;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <ImageView fx:id="recover_logo" fitHeight="50.0" fitWidth="50.0" layoutX="272.0" layoutY="6.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/logo.png" />
+         </image>
+      </ImageView>
+      <Text fx:id="recover_title" fontSmoothingType="LCD" layoutX="278.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="SNIPPY" textAlignment="CENTER" />
+      <JFXPasswordField fx:id="recover_password" alignment="CENTER" focusColor="#ff6600" layoutX="233.0" layoutY="175.0" promptText="p a s s w o r d" />
+      <JFXPasswordField fx:id="recover_confirmpw" alignment="CENTER" focusColor="#ff6600" layoutX="233.0" layoutY="207.0" promptText="c o n f i r m" />
+      <JFXButton fx:id="recover_submit" layoutX="276.0" layoutY="265.0" style="-fx-background-color: #00ccdd;" text="RESET" textFill="WHITE" />
+      <Text fx:id="recover_codeprompt" fontSmoothingType="LCD" layoutX="187.0" layoutY="167.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Last step! Please enter your new password." textAlignment="CENTER" />
+      <Label fx:id="login_error" layoutX="262.0" layoutY="241.0" text="Error Message" textAlignment="CENTER" textFill="RED" />
+      <JFXButton fx:id="recover_cancel" layoutX="275.0" layoutY="374.0" prefHeight="25.0" prefWidth="50.0" text="cancel" textAlignment="RIGHT" textFill="#444444" />
+   </children>
+</Pane>

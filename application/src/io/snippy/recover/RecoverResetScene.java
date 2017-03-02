@@ -1,4 +1,4 @@
-package io.snippy.register;
+package io.snippy.recover;
 
 import com.jfoenix.controls.JFXButton;
 import io.snippy.core.StageScene;
@@ -9,24 +9,25 @@ import javafx.stage.Stage;
 
 
 /**
- * Created by Ian on 2/18/2017.
+ * The fourth recovery scene: resetting your password
+ * Created by Ian on 3/2/2017.
  */
-public class RegisterScene extends StageScene {
+public class RecoverResetScene extends StageScene {
 
-	public RegisterScene( Stage primaryStage ) {
+	public RecoverResetScene( Stage primaryStage ) {
 		super( primaryStage );
 	}
 
 	@Override
 	public Parent inflateLayout() {
-		return UXUtils.inflate( "assets/layouts/layout_register.fxml" );
+		return UXUtils.inflate( "assets/layouts/layout_recover4.fxml" );
 	}
 
 	@Override
 	public void onCreate() {
-		JFXButton cancelButton = (JFXButton) lookup( "#register_cancel" );
+		JFXButton cancelButton = (JFXButton) lookup( "#recover_cancel" );
 		cancelButton.setOnAction( event -> switchScreen( LoginScene.class ) );
-		JFXButton submitButton = (JFXButton) lookup( "#register_submit" );
+		JFXButton submitButton = (JFXButton) lookup( "#recover_submit" );
 		submitButton.setOnAction( event -> switchScreen( LoginScene.class ) );
 	}
 
