@@ -10,9 +10,9 @@
 
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #f8f8f8;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <JFXTextField fx:id="recover_email" alignment="CENTER" focusColor="#ff6600" layoutX="233.0" layoutY="188.0" promptText="e m a i l" />
+      <JFXTextField fx:id="recover_answer" alignment="CENTER" focusColor="#ff6600" layoutX="233.0" layoutY="188.0" promptText="c o d e" />
       <Label fx:id="login_error" layoutX="262.0" layoutY="223.0" text="Error Message" textAlignment="CENTER" textFill="RED" />
-      <JFXButton fx:id="recover_next" layoutX="278.0" layoutY="247.0" style="-fx-background-color: #00ccdd;" text="NEXT" textFill="WHITE" />
+      <JFXButton fx:id="recover_next" layoutX="278.0" layoutY="248.0" style="-fx-background-color: #00ccdd;" text="NEXT" textFill="WHITE" />
       <JFXButton fx:id="recover_cancel" layoutX="275.0" layoutY="374.0" prefHeight="25.0" prefWidth="50.0" text="cancel" textAlignment="RIGHT" textFill="#444444" />
       <ImageView fx:id="recover_logo" fitHeight="50.0" fitWidth="50.0" layoutX="272.0" layoutY="6.0" pickOnBounds="true" preserveRatio="true">
          <image>
@@ -20,6 +20,6 @@
          </image>
       </ImageView>
       <Text fx:id="recover_title" fontSmoothingType="LCD" layoutX="278.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="SNIPPY" textAlignment="CENTER" />
-      <Text fx:id="recover_prompt" fontSmoothingType="LCD" layoutX="194.0" layoutY="182.0" strokeType="OUTSIDE" strokeWidth="0.0" text="What account are you trying to recover?" textAlignment="CENTER" />
+      <Text fx:id="recover_codeprompt" fontSmoothingType="LCD" layoutX="151.0" layoutY="182.0" strokeType="OUTSIDE" strokeWidth="0.0" text="We've emailed you a recovery code. Please enter it here." textAlignment="CENTER" />
    </children>
 </Pane>

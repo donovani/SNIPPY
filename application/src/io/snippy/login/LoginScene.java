@@ -3,6 +3,7 @@ package io.snippy.login;
 import com.jfoenix.controls.JFXButton;
 import io.snippy.core.StageScene;
 import io.snippy.main.MainScene;
+import io.snippy.recover.RecoverEmailScene;
 import io.snippy.register.RegisterScene;
 import io.snippy.util.UXUtils;
 import javafx.scene.Parent;
@@ -31,7 +32,7 @@ public class LoginScene extends StageScene {
 		JFXButton registerButton = (JFXButton) lookup( "#login_register" );
 		registerButton.setOnAction( event -> switchScreen( RegisterScene.class ) );
 		JFXButton forgotButton = (JFXButton) lookup( "#login_forgot" );
-		forgotButton.setOnAction( event -> switchScreen( LoginScene.class ) );
+		forgotButton.setOnAction( event -> switchScreen( RecoverEmailScene.class ) );
 	}
 
 	@Override
