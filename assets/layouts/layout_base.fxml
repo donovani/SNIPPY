@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.geometry.*?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Pane fx:id="base_bar" prefHeight="48.0" prefWidth="600.0" style="-fx-background-color: #f8f8f8;">
+         <children>
+            <ImageView fx:id="base_logo" fitHeight="36.0" fitWidth="36.0" layoutX="8.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/logo.png" />
+               </image>
+            </ImageView>
+            <Text fx:id="base_title" layoutX="51.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text="SNIPPY" />
+            <JFXButton fx:id="base_new" layoutX="503.0" layoutY="12.0" text="NEW" />
+            <JFXButton fx:id="base_searchbutton" layoutX="444.0" layoutY="12.0" text="SEARCH" />
+            <JFXHamburger fx:id="base_menu" layoutX="556.0" layoutY="14.0" />
+            <JFXTextField fx:id="base_searchbar" alignment="CENTER" focusColor="#ff6600" layoutX="309.0" layoutY="12.0" promptText="s e a r c h" />
+         </children></Pane>
+      <Pane fx:id="base_container" layoutY="48.0" prefHeight="360.0" prefWidth="600.0" style="-fx-background-color: #ffffff;">
+         <children>
+            <JFXListView fx:id="base_selections" prefHeight="360.0" prefWidth="128.0" style="-fx-background-color: #e8e8e8;" />
+            <Pane fx:id="base_content" layoutX="128.0" prefHeight="360.0" prefWidth="473.0" />
+         </children></Pane>
+   </children>
+</Pane>

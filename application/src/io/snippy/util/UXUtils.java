@@ -25,7 +25,7 @@ public final class UXUtils {
 	public static Parent inflate( String filePath ) {
 		File f = new File( filePath );
 		if ( !f.exists() || !f.isFile() ) {
-			//Error condition
+			throw new IllegalArgumentException( "FXML file does not exist at " + filePath );
 		}
 		try {
 			return FXMLLoader.load( f.toURI().toURL() );
