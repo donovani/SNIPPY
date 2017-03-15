@@ -1,6 +1,7 @@
 package io.snippy.main;
 
 import com.jfoenix.controls.JFXHamburger;
+import com.jfoenix.controls.JFXListView;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
 import io.snippy.core.StageScene;
 import io.snippy.util.UXUtils;
@@ -42,6 +43,7 @@ public class MainScene extends StageScene {
 			closeTransition.setRate(closeTransition.getRate() * -1);
 			closeTransition.play();
 		});
+		JFXListView< SnipListItem > snips = (JFXListView< SnipListItem >) lookup( "#base_selections" );
 	}
 
 	@Override
