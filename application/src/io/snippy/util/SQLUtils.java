@@ -93,7 +93,7 @@ public class SQLUtils {
                 break;
             }
             rs.close();
-            ;
+
             if (usr.equals("") || usr.equals(null)) {
                 return false;
             } else {
@@ -184,6 +184,42 @@ public class SQLUtils {
             printErr(e);
             return false;
         }
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /* done
+     * Method: login
+	 * Pre: takes in a username and password
+	 * Post: returns true if valid or false if now
+	 */
+    public static boolean login(String username, String password) {
+        if (userExists(username)) {
+            connect();
+            try {
+                String query = "SELECT `Password`, `s` FROM `users` WHERE `Email` LIKE ?";
+                PreparedStatement stmnt = connection.prepareStatement(query);
+                stmnt.setString(1, username);
+
+                ResultSet rs = stmnt.executeQuery();
+
+                String dbPass = "";
+                String dbSalt = "";
+                while (rs.next()) {
+                    dbPass = rs.getString(1);
+                    dbSalt = rs.getString(2);
+                }
+
+                if ((new String(hash(password, dbSalt))).equals(dbPass)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (Exception e) {
+                printErr(e);
+                return false;
+            }
+        }
+        return false;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
