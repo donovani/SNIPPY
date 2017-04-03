@@ -39,7 +39,14 @@ public class RecoverQuestionScene extends StageScene {
             user = tmp.split("`");
         }
 
-        if (!user[3].equals("null") || !user[5].equals("null")) {// if the user did security questions
+        if ((user[3] == null || user[3].equals("") || user[3].equals("null")) && (user[5] == null || user[5].equals("") || user[5].equals("null"))) {
+            println(user[3]);
+            println(user[5]);
+            println(((user[3] == null || user[3].equals("") || user[3].equals("null")) && (user[5] == null || user[5].equals("") || user[5].equals("null"))) + "");
+            qNum = 1;
+            user = null;
+            switchScreen(RecoverCodeScene.class); //send code
+        } else {// if the user did security questions
             JFXButton cancelButton = (JFXButton) lookup("#recover_cancel");
             cancelButton.setOnAction(event -> switchScreen(LoginScene.class));
 
@@ -52,7 +59,6 @@ public class RecoverQuestionScene extends StageScene {
             } else {//question 2
                 ((Text) lookup("#recover_question")).setText(user[5]);
             }
-
 
             JFXButton nextButton = (JFXButton) lookup("#recover_next");
             nextButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -81,16 +87,20 @@ public class RecoverQuestionScene extends StageScene {
                     }
                 }
             });
-
-        } else { //no security questions
-            qNum = 1;
-            user = null;
-            switchScreen(RecoverCodeScene.class); //send code
         }
     }
 
     @Override
     public void onDispose() {
 
+    }
+
+    //================DEBUG===========
+    private boolean debug = true;
+
+    private void println(String val) {
+        if (debug) {
+            System.out.println(val);
+        }
     }
 }
