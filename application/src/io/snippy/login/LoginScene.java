@@ -42,7 +42,8 @@ public class LoginScene extends StageScene {
                 String username = ((JFXTextField) lookup("#login_email")).getText();
                 String password = ((JFXPasswordField) lookup("#login_password")).getText();
 
-                if (SQLUtils.login(username, password)) {
+                int userID = SQLUtils.login(username, password);
+                if (userID != -1) {
                     switchScreen(MainScene.class);
                 } else {
                     lookup("#login_error").setVisible(true);

@@ -25,6 +25,7 @@ public class RecoverQuestionScene extends StageScene {
 
 	@Override
 	public void onCreate() {
+
 		JFXButton cancelButton = (JFXButton) lookup( "#recover_cancel" );
 		cancelButton.setOnAction( event -> switchScreen( LoginScene.class ) );
 		JFXButton nextButton = (JFXButton) lookup( "#recover_next" );
