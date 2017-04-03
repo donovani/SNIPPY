@@ -8,6 +8,8 @@ allprojects {
 		appName = "SNIPPY"
 		jfoenixVersion = "1.1.0"
 		tinylogVersion = "1.1"
+		javamailVersion = "1.5.6"
+		mysqlconnectorVersion = "5.1.13"
 	}
 
 	repositories {
@@ -25,6 +27,8 @@ project("application") {
 	dependencies {
 		compile "com.jfoenix:jfoenix:$jfoenixVersion"
 		compile "org.tinylog:tinylog:$tinylogVersion"
+		compile "javax.mail:javax.mail-api:$javamailVersion"
+		compile "mysql:mysql-connector-java:$mysqlconnectorVersion"
 	}
 }
 
