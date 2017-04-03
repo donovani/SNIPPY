@@ -193,6 +193,8 @@ public class SQLUtils {
      * Post: returns user id if ok, or -1 if error
      */
     public static int getUserID(String username) {
+        connect();
+
         try {
             String query = "SELECT `ID` FROM `users` WHERE `Email` LIKE ?";
             PreparedStatement stmnt = connection.prepareStatement(query);
@@ -214,6 +216,8 @@ public class SQLUtils {
      * Post: returns user as a string (delim `) or null if error
      */
     public static String getUser(int ID) {
+        connect();
+
         String usr = "";
         String query = "SELECT * FROM `users` WHERE `ID` LIKE ?";
         try {
@@ -278,6 +282,42 @@ public class SQLUtils {
             }
         }
         return -1;
+    }
+
+    /* done
+     * Method: changePass
+     * Pre: takes in a username and password
+     * Post: returns true if password was successfully chanced or false if error
+     */
+    public static boolean changePass(String username, String pass) {
+        connect();
+
+        try {
+            String query = "SELECT `s` FROM `users` WHERE `Email` LIKE ?"; //get the user's salt
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, username);
+
+            ResultSet rs = stmnt.executeQuery();
+
+            String salt = "";
+            while (rs.next()) {
+                salt = rs.getString(1); //save the salt
+            }
+
+            pass = hash(pass, salt); //hash the new password
+
+            query = "UPDATE `users` SET `Password` = ? WHERE `Email` LIKE ?"; //change password
+            stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, pass);
+            stmnt.setString(2, username);
+
+            stmnt.execute();
+
+            return true;
+        } catch (Exception e) {
+            printErr(e);
+            return false;
+        }
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -746,6 +786,12 @@ public class SQLUtils {
             System.out.println("User Exists (N): " + userExists("hallj@gmail.com"));
             System.out.println("User Exists (Y): " + userExists(1));
             System.out.println("User Exists (N): " + userExists(0));
+
+            System.out.println("==========");
+
+            System.out.println("User 1's Password was changed: " + changePass(getUser(1), "TEST"));
+            System.out.println("User'1 can login: " + login(getUser(1), "TEST"));
+            System.out.println("User 1: " + getUser(getUserID("hallja99@gmail.com")));
 
             System.out.println("==========");
 
