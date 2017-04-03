@@ -2,6 +2,7 @@ package io.snippy.util;
 
 import sun.dc.pr.PRError;
 
+import java.awt.*;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -186,13 +187,64 @@ public class SQLUtils {
         }
     }
 
+    /* done
+     * Method: getUserID
+     * Pre: takes in a username
+     * Post: returns user id if ok, or -1 if error
+     */
+    public static int getUserID(String username) {
+        try {
+            String query = "SELECT `ID` FROM `users` WHERE `Email` LIKE ?";
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, username);
+
+            ResultSet rs = stmnt.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+
+        } catch (Exception e) {
+            printErr(e);
+            return -1;
+        }
+    }
+
+    /* done
+     * Method: getUser
+     * Pre: takes in a user's ID
+     * Post: returns user as a string (delim `) or null if error
+     */
+    public static String getUser(int ID) {
+        String usr = "";
+        String query = "SELECT * FROM `users` WHERE `ID` LIKE ?";
+        try {
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, ID);
+
+            ResultSet rs = stmnt.executeQuery();
+            while (rs.next()) {
+                usr = usr + rs.getInt(1) + "`";
+                usr = usr + rs.getString(3) + "`";
+                usr = usr + rs.getString(4) + "`";
+                usr = usr + rs.getString(5) + "`";
+                usr = usr + rs.getString(6) + "`";
+                usr = usr + rs.getString(7) + "`";
+                usr = usr + rs.getString(8) + "`";
+                usr = usr + rs.getString(9);
+            }
+            return usr;
+        } catch (Exception e) {
+            printErr(e);
+            return null;
+        }
+    }
+
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /* done
      * Method: login
 	 * Pre: takes in a username and password
-	 * Post: returns true if valid or false if now
+	 * Post: returns user id if ok, or -1 if error
 	 */
-    public static boolean login(String username, String password) {
+    public static int login(String username, String password) {
         if (userExists(username)) {
             connect();
             try {
@@ -210,16 +262,22 @@ public class SQLUtils {
                 }
 
                 if ((new String(hash(password, dbSalt))).equals(dbPass)) {
-                    return true;
+                    query = "SELECT `ID` FROM `users` WHERE `Email` LIKE ?";
+                    stmnt = connection.prepareStatement(query);
+                    stmnt.setString(1, username);
+
+                    rs = stmnt.executeQuery();
+                    rs.next();
+                    return rs.getInt(1);
                 } else {
-                    return false;
+                    return -1;
                 }
             } catch (Exception e) {
                 printErr(e);
-                return false;
+                return -1;
             }
         }
-        return false;
+        return -1;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -676,6 +734,11 @@ public class SQLUtils {
             salt = generateSalt();
             pass = hash("password", salt);
             System.out.println("Create User 4: " + createUser(pass, "hallja96@gmail.com", "Jake", "Mother's Maiden Name", "Mills", "City Born In", "Boston", salt));
+
+            System.out.println("==========");
+
+            System.out.println("User 1's id: " + getUserID("hallja99@gmail.com"));
+            System.out.println("User 1: " + getUser(getUserID("hallja99@gmail.com")));
 
             System.out.println("==========");
 
