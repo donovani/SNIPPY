@@ -95,7 +95,7 @@ public class SendEmail {
     }
 
     //============DEBUG=============================
-    private static boolean debug = true;
+    private static boolean debug = false;
 
     private void print(String val) {
         if (debug) {
