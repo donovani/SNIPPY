@@ -67,7 +67,7 @@ public class SendEmail {
     }
 
     private String genCode() {
-        int length = 7;
+        int length = 8;
         String code = "";
 
         for (int i = 0; i < length; i++) {
@@ -124,6 +124,7 @@ public class SendEmail {
 
     public static void main(String args[]) {
         if (debug) {
+            new SendEmail().send("email@example.com");
             for (int i = 0; i < 100; i++) {
                 System.out.println(new SendEmail().genCode());
             }
