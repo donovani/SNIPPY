@@ -96,7 +96,7 @@ public class RecoverQuestionScene extends StageScene {
     }
 
     //================DEBUG===========
-    private boolean debug = true;
+    private boolean debug = false;
 
     private void println(String val) {
         if (debug) {
