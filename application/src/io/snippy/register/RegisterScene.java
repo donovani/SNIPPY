@@ -40,6 +40,7 @@ public class RegisterScene extends StageScene {
         cancelButton.setOnAction(event -> switchScreen(LoginScene.class));
 
         ArrayList<String> comboItems = new ArrayList<String>();
+        comboItems.add("");
         comboItems.add("In what city were you born?");
         comboItems.add("What is the name of your first school?");
         comboItems.add("What high school did you attend?");
