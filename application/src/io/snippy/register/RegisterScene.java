@@ -103,17 +103,26 @@ public class RegisterScene extends StageScene {
                     lookup("#register_error3").setVisible(true);
 
                     println("Passwords do not match");
-                } else if ((sec1.equals("") && !seca1.equals("")) || (!sec1.equals("") && seca1.equals(""))) {//if sec q or answer are empty while the other is filled out
+                } else if (sec1.equals("") && !seca1.equals("")) {//if sec q or answer are empty while the other is filled out
                     hideErrors();
                     lookup("#register_error4").setVisible(true);
 
                     println("Security question 1 is blank or response is blank");
-                } else if ((sec2.equals("") && !seca2.equals("")) || (!sec2.equals("") && seca2.equals(""))) {//if sec q or answer are empty while the other is filled out
+                } else if (sec2.equals("") && !seca2.equals("")) {//if sec q or answer are empty while the other is filled out
                     hideErrors();
                     lookup("#register_error4").setVisible(true);
 
                     println("Security question 2 is blank or response is blank");
                 } else {
+
+                    if (!sec1.equals("") && seca1.equals("")) {//allow the user to still register if they decided not to pic a sec question
+                        sec1 = "";
+                        seca1 = "";
+                    }
+                    if (!sec2.equals("") && seca2.equals("")) {//allow the user to still register if they decided not to pic a sec question
+                        sec2 = "";
+                        seca2 = "";
+                    }
                     String salt = SQLUtils.generateSalt(); //generate salt
                     String pass = SQLUtils.hash(pass1, salt); //hash the user's password
 
@@ -184,7 +193,7 @@ public class RegisterScene extends StageScene {
     }
 
     //============DEBUG=============================
-    private boolean debug = true;
+    private boolean debug = false;
 
     private void print(String val) {
         if (debug) {
