@@ -23,6 +23,8 @@ public class MainScene extends StageScene {
 	private JFXHamburger menuButton;
 	private HamburgerBasicCloseTransition closeTransition;
 
+	private JFXListView<Parent> snips;
+
 	public MainScene( Stage primaryStage ) {
 		super( primaryStage );
 	}
@@ -47,6 +49,7 @@ public class MainScene extends StageScene {
 			closeTransition.play();
 		});
 
+		//Now we setup events for dialogs
 		StackPane overlay = (StackPane) this.lookup( "#base_stack" );
 		JFXButton deleteButton = (JFXButton) this.lookup( "#main_delete" );
 		String snipID = "<snip uuid goes here>";
@@ -54,7 +57,10 @@ public class MainScene extends StageScene {
 		deleteButton.setOnAction( event -> DeleteDialog.createAndShow( overlay, snipID ) );
 
 		//Lastly we load the data of the app
-		JFXListView< SnipListItem > snips = (JFXListView< SnipListItem >) lookup( "#base_selections" );
+		//TODO: Here's where you load info about snips.
+		snips = (JFXListView< Parent >) lookup( "#base_selections" );
+		for (int i=0; i<50; i++)
+			snips.getItems().add(new SnipListData().toNode());
 	}
 
 	@Override
