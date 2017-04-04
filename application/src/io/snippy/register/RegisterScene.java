@@ -25,6 +25,8 @@ import java.util.ArrayList;
  * Created by Ian on 2/18/2017.
  */
 public class RegisterScene extends StageScene {
+    public static final String EMAIL_REGEX = "^([\\w\\-\\.])+@(([\\d\\w\\-])+\\.)+[a-zA-Z]{2,}$";
+
     public RegisterScene(Stage primaryStage) {
         super(primaryStage);
     }
@@ -84,7 +86,7 @@ public class RegisterScene extends StageScene {
                 println("==========\n\n");
                 //END DEBUG
 
-                if (email.equals("") || email.indexOf("@") == -1) { //no email visible
+                if (!email.matches(EMAIL_REGEX) || email.equals("")) { //no email visible
                     hideErrors();
                     lookup("#register_error1").setVisible(true);
 
