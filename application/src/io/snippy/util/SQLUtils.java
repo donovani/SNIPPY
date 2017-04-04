@@ -246,12 +246,57 @@ public class SQLUtils {
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    /* done
+    /* TODO: FIX ISUUES WITH QUERY (NOT GRABBING CORRECT SALT)
      * Method: login
 	 * Pre: takes in a username and password
 	 * Post: returns user id if ok, or -1 if error
 	 */
     public static int login(String username, String password) {
+        connect();
+        try {
+            String query = "SELECT `Password` FROM `users` WHERE `ID` = ?";
+            int id = getUserID(username);
+
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, id);
+
+            ResultSet rs = stmnt.executeQuery();
+
+            String dbPass = null;
+            while (rs.next()) {
+                dbPass = rs.getString(1);
+                break;
+            }
+
+            String query1 = "SELECT `s` FROM `users` WHERE `Email` LIKE ?"; //get the user's salt
+            PreparedStatement stmnt1 = connection.prepareStatement(query1);
+            stmnt1.setString(1, username);
+
+            ResultSet rs1 = stmnt1.executeQuery();
+
+            String salt = "";
+            while (rs1.next()) {
+                salt = rs1.getString(1); //save the salt
+            }
+
+            String pass = password;
+            pass = hash(pass, salt); //hash the new password
+            pass = clean(pass);
+
+            if (pass.equals(dbPass)) {
+                return getUserID(username);
+            }
+
+            return -1;
+
+        } catch (Exception e) {
+            printErr(e);
+            return -1;
+        }
+    }
+
+    //TODO: REMOVE (THIS IS OLD LOG IN)
+    public static int nil(String username, String password) {
         if (userExists(username)) {
             connect();
             try {
@@ -283,6 +328,7 @@ public class SQLUtils {
         }
         return -1;
     }
+
 
     /* done
      * Method: changePass
@@ -708,6 +754,32 @@ public class SQLUtils {
         return new String(bytes);
     }
 
+    /* TODO: REMOVE
+     * Method: clean
+     * Pre: takes in a string val
+     * Post: returns string cleaned by putting in DB and then pulling
+     */
+    public static String clean(String val) {
+        connect();
+        String query = "INSERT INTO `s` VALUES (?)";
+        try {
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, val);
+            stmnt.execute();
+
+            query = "SELECT * FROM `s`";
+            stmnt = connection.prepareStatement(query);
+            ResultSet rs = stmnt.executeQuery();
+            while (rs.next()) {
+                val = rs.getString(1);
+            }
+            connection.prepareStatement("TRUNCATE `s`").execute();
+            return val;
+        } catch (Exception e) {
+            printErr(e);
+            return null;
+        }
+    }
     // ==========================DEBUG STUFF=============================
 
     private static boolean debug = false;
