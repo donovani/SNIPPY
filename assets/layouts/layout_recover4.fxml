@@ -17,10 +17,11 @@
       </ImageView>
       <Text fx:id="recover_title" fontSmoothingType="LCD" layoutX="278.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="SNIPPY" textAlignment="CENTER" />
       <JFXPasswordField fx:id="recover_password" alignment="CENTER" focusColor="#ff6600" layoutX="233.0" layoutY="175.0" promptText="p a s s w o r d" />
-      <JFXPasswordField fx:id="recover_confirmpw" alignment="CENTER" focusColor="#ff6600" layoutX="233.0" layoutY="207.0" promptText="c o n f i r m" />
+      <JFXPasswordField fx:id="recover_confirm" alignment="CENTER" focusColor="#ff6600" layoutX="233.0" layoutY="207.0" promptText="c o n f i r m" />
       <JFXButton fx:id="recover_submit" layoutX="276.0" layoutY="265.0" style="-fx-background-color: #00ccdd;" text="RESET" textFill="WHITE" />
       <Text fx:id="recover_codeprompt" fontSmoothingType="LCD" layoutX="187.0" layoutY="167.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Last step! Please enter your new password." textAlignment="CENTER" />
-      <Label fx:id="login_error" layoutX="262.0" layoutY="241.0" text="Error Message" textAlignment="CENTER" textFill="RED" />
+      <Label fx:id="login_error1" layoutX="262.0" layoutY="241.0" text="Passwords Must Match" textAlignment="CENTER" textFill="RED" visible="false" />
+      <Label fx:id="login_error2" layoutX="262.0" layoutY="241.0" text="Error Changing Password" textAlignment="CENTER" textFill="RED" visible="false" />
       <JFXButton fx:id="recover_cancel" layoutX="275.0" layoutY="374.0" prefHeight="25.0" prefWidth="50.0" text="cancel" textAlignment="RIGHT" textFill="#444444" />
    </children>
 </Pane>
