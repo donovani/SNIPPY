@@ -31,10 +31,10 @@ public class RecoverCodeScene extends StageScene {
 
     @Override
     public void onCreate() {
-        String sentCode = new SendEmail().send(RecoverEmailScene.username);
-        long startTime = System.currentTimeMillis();
+        String sentCode = new SendEmail().send(RecoverEmailScene.username); //send an email to the user
+        long startTime = System.currentTimeMillis(); //log the time
 
-        JFXButton cancelButton = (JFXButton) lookup("#recover_cancel");
+        JFXButton cancelButton = (JFXButton) lookup("#recover_cancel"); //cancel button
         cancelButton.setOnAction(event -> switchScreen(LoginScene.class));
 
         JFXButton nextButton = (JFXButton) lookup("#recover_next");
@@ -43,10 +43,11 @@ public class RecoverCodeScene extends StageScene {
             public void handle(javafx.event.ActionEvent event) {
                 String code = ((JFXTextField) lookup("#recover_answer")).getText();
 
-                if (System.currentTimeMillis() - startTime > (5 * 60 * 1000)) { // timeout after 5 mines
-                    lookup("#login_error1").setVisible(false);
+                int minsTillTimeout = 5;// timeout after 5 mines
+                if (System.currentTimeMillis() - startTime > (minsTillTimeout * 60 * 1000)) { //if time out
+                    lookup("#login_error1").setVisible(false); //show timeout error
                     lookup("#login_error2").setVisible(true);
-                    switchScreen(RecoverCodeScene.class);
+                    switchScreen(RecoverCodeScene.class); //resend code
                 } else if (code.equals(sentCode)) { //if codes match
                     lookup("#login_error1").setVisible(false);
                     lookup("#login_error2").setVisible(false);

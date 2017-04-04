@@ -39,7 +39,7 @@ public class RecoverQuestionScene extends StageScene {
             user = tmp.split("`");
         }
 
-        if ((user[3] == null || user[3].equals("") || user[3].equals("null")) && (user[5] == null || user[5].equals("") || user[5].equals("null"))) {
+        if ((user[3] == null || user[3].equals("") || user[3].equals("null")) && (user[5] == null || user[5].equals("") || user[5].equals("null"))) { //if the user has no recovery questions
             println(user[3]);
             println(user[5]);
             println(((user[3] == null || user[3].equals("") || user[3].equals("null")) && (user[5] == null || user[5].equals("") || user[5].equals("null"))) + "");
