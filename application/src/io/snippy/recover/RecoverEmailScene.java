@@ -17,6 +17,7 @@ import javafx.stage.Stage;
  * Created by Ian on 3/1/2017.
  */
 public class RecoverEmailScene extends StageScene {
+    public static final String EMAIL_REGEX = "^([\\w\\-\\.])+@(([\\d\\w\\-])+\\.)+[a-zA-Z]{2,}$";
     public static String username = "";
 
     public RecoverEmailScene(Stage primaryStage) {
@@ -40,9 +41,13 @@ public class RecoverEmailScene extends StageScene {
             public void handle(javafx.event.ActionEvent event) {
                 username = ((JFXTextField) lookup("#recover_email")).getText();
 
-                if (SQLUtils.userExists(username)) {
-                    lookup("#login_error").setVisible(false);
-                    switchScreen(RecoverQuestionScene.class);
+                if (username.matches(EMAIL_REGEX)) {
+                    if (SQLUtils.userExists(username)) {
+                        lookup("#login_error").setVisible(false);
+                        switchScreen(RecoverQuestionScene.class);
+                    } else {
+                        lookup("#login_error").setVisible(true);
+                    }
                 } else {
                     lookup("#login_error").setVisible(true);
                 }
