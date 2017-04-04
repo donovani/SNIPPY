@@ -5,10 +5,7 @@ import sun.dc.pr.PRError;
 import java.awt.*;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -29,9 +26,15 @@ public class SQLUtils {
     private static void connect() {
 
         if (connection == null) {
-            String url = "jdbc:mysql://localhost:3306/snippy";
+
+            String url = "jdbc:mysql://35.162.241.216:3306/snippy";
+            String username = "jimmr";
+            String password = "Software171!";
+
+            /*
+            String url = "jdbc:mysql://localhost/snippy";
             String username = "root";
-            String password = "password";
+            String password = "password";*/
             try {
                 connection = DriverManager.getConnection(url, username, password);
                 println("Connected");
@@ -57,13 +60,13 @@ public class SQLUtils {
             stmnt.setString(1, email);
             ResultSet rs = stmnt.executeQuery();
 
-            String usr = null;
+            int usr = -1;
             while (rs.next()) {
-                usr = rs.getString(1);
+                usr = rs.getInt(1);
                 break;
             }
             rs.close();
-            if (usr.equals("") || usr.equals(null)) {
+            if (usr == -1) {
                 return false;
             } else {
                 return true;
@@ -252,7 +255,7 @@ public class SQLUtils {
         if (userExists(username)) {
             connect();
             try {
-                String query = "SELECT `Password`, `s` FROM `users` WHERE `Email` LIKE ?";
+                String query = "SELECT `Password`, `s` FROM `users` WHERE `Email` = ?";
                 PreparedStatement stmnt = connection.prepareStatement(query);
                 stmnt.setString(1, username);
 
@@ -265,14 +268,11 @@ public class SQLUtils {
                     dbSalt = rs.getString(2);
                 }
 
-                if ((new String(hash(password, dbSalt))).equals(dbPass)) {
-                    query = "SELECT `ID` FROM `users` WHERE `Email` LIKE ?";
-                    stmnt = connection.prepareStatement(query);
-                    stmnt.setString(1, username);
+                println(dbSalt);
+                println(new String(hash(password, dbSalt)));
 
-                    rs = stmnt.executeQuery();
-                    rs.next();
-                    return rs.getInt(1);
+                if (((hash(password, dbSalt))).equals(dbPass)) {
+                    return getUserID(username);
                 } else {
                     return -1;
                 }
@@ -711,6 +711,7 @@ public class SQLUtils {
     // ==========================DEBUG STUFF=============================
 
     private static boolean debug = false;
+    private static boolean print = true;
 
     /*done
      * Method: println
@@ -718,7 +719,7 @@ public class SQLUtils {
      * Post: outputs the string if debug is enabled
      */
     private static void println(String line) {
-        if (debug)
+        if (debug && print)
             System.out.println(line);
     }
 
@@ -789,7 +790,7 @@ public class SQLUtils {
 
             System.out.println("==========");
 
-            System.out.println("User 1's Password was changed: " + changePass(getUser(1), "TEST"));
+            System.out.println("User 1's Password was changed: " + changePass("hallja99@gmail.com", "TEST"));
             System.out.println("User'1 can login: " + login(getUser(1), "TEST"));
             System.out.println("User 1: " + getUser(getUserID("hallja99@gmail.com")));
 
@@ -810,6 +811,7 @@ public class SQLUtils {
             tags.add("Debug");
             tags.add("Testing");
             tags.add("Tags");
+
             System.out.println("Create Snip (3): " + createSnip(3, "Test 3", "The Third Snip", tags, "System.out.println(\"Snip #3\");"));
             System.out.println("Create Snip (4): " + createSnip(4, "Test 4", "The Fourth Snip", tags, "Java", "System.out.println(\"Snip #4\");"));
 
