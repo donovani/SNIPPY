@@ -37,22 +37,22 @@ public class RecoverResetScene extends StageScene {
         submitButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(javafx.event.ActionEvent event) {
-                String pass1 = ((JFXPasswordField) lookup("#recover_password")).getText();
-                String pass2 = ((JFXPasswordField) lookup("#recover_confirm")).getText();
+                String pass1 = ((JFXPasswordField) lookup("#recover_password")).getText(); //grab password
+                String pass2 = ((JFXPasswordField) lookup("#recover_confirm")).getText(); //grab password confirmation
 
-                if (pass1.equals(pass2)) {
-                    lookup("#login_error1").setVisible(false);
+                if (pass1.equals(pass2)) { //if passwords match
+                    lookup("#login_error1").setVisible(false); //hide errors
                     lookup("#login_error2").setVisible(false);
 
-                    boolean changed = SQLUtils.changePass(RecoverEmailScene.username, pass1);
+                    boolean changed = SQLUtils.changePass(RecoverEmailScene.username, pass1); //try to change password
 
-                    if (changed) {
+                    if (changed) { //if successful
                         switchScreen(LoginScene.class);
-                    } else {
+                    } else { //else error
                         lookup("#login_error1").setVisible(false);
                         lookup("#login_error2").setVisible(true);
                     }
-                } else {
+                } else {//else error
                     lookup("#login_error1").setVisible(true);
                     lookup("#login_error2").setVisible(false);
                 }

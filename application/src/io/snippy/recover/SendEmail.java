@@ -67,35 +67,33 @@ public class SendEmail {
     }
 
     private String genCode() {
-        int length = 8;
+        int length = 10;
         String code = "";
 
         for (int i = 0; i < length; i++) {
             Random rand = new Random();
-            int val = rand.nextInt(4);
+            int val = rand.nextInt(3);
 
-            if (val == 0) {//special char
-                code = code + (char) (33 + rand.nextInt(15));
-            } else if (val == 1) {//number
+
+            if (val == 0) {//number
                 code = code + (char) (48 + rand.nextInt(10));
-            } else if (val == 2) {//lowercase
+            } else if (val == 1) {//lowercase
                 code = code + (char) (97 + rand.nextInt(26));
             } else {//uppercase
                 code = code + (char) (65 + rand.nextInt(26));
             }
 
             //replace possible confusing characters
-            code = code.replace("\"", "=");
-            code = code.replace("'", "@");
-            code = code.replace(",", "<");
-            code = code.replace(".", ">");
-            code = code.replace("/", "?");
+            code = code.replace("0", "?");
+            code = code.replace("O", "!");
+            code = code.replace("o", "@");
+
         }
         return code;
     }
 
     //============DEBUG=============================
-    private static boolean debug = false;
+    private static boolean debug = true;
 
     private void print(String val) {
         if (debug) {

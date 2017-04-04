@@ -39,13 +39,13 @@ public class LoginScene extends StageScene {
         loginButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
             @Override
             public void handle(javafx.event.ActionEvent event) {
-                String username = ((JFXTextField) lookup("#login_email")).getText();
-                String password = ((JFXPasswordField) lookup("#login_password")).getText();
+                String username = ((JFXTextField) lookup("#login_email")).getText(); //get username
+                String password = ((JFXPasswordField) lookup("#login_password")).getText();// get password
 
-                int userID = SQLUtils.login(username, password);
-                if (userID != -1) {
-                    switchScreen(MainScene.class);
-                } else {
+                int userID = SQLUtils.login(username, password); //get user's id
+                if (userID != -1) {//if the id isnt -1
+                    switchScreen(MainScene.class); //good to go
+                } else { //else error
                     lookup("#login_error").setVisible(true);
                 }
             }

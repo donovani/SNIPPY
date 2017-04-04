@@ -32,24 +32,24 @@ public class RecoverEmailScene extends StageScene {
     @Override
     public void onCreate() {
         username = "";
-        JFXButton cancelButton = (JFXButton) lookup("#recover_cancel");
+        JFXButton cancelButton = (JFXButton) lookup("#recover_cancel"); //cancel
         cancelButton.setOnAction(event -> switchScreen(LoginScene.class));
 
         JFXButton nextButton = (JFXButton) lookup("#recover_next");
-        nextButton.setOnAction(new EventHandler<ActionEvent>() {
+        nextButton.setOnAction(new EventHandler<ActionEvent>() { //on button click
             @Override
             public void handle(javafx.event.ActionEvent event) {
-                username = ((JFXTextField) lookup("#recover_email")).getText();
+                username = ((JFXTextField) lookup("#recover_email")).getText(); //save the username
 
-                if (username.matches(EMAIL_REGEX)) {
-                    if (SQLUtils.userExists(username)) {
-                        lookup("#login_error").setVisible(false);
-                        switchScreen(RecoverQuestionScene.class);
+                if (username.matches(EMAIL_REGEX)) { //make sure its an email
+                    if (SQLUtils.userExists(username)) { //double check it exists
+                        lookup("#login_error").setVisible(false); //hide error messages
+                        switchScreen(RecoverQuestionScene.class); //go to next recovery step
                     } else {
-                        lookup("#login_error").setVisible(true);
+                        lookup("#login_error").setVisible(true); //show error
                     }
                 } else {
-                    lookup("#login_error").setVisible(true);
+                    lookup("#login_error").setVisible(true);//show error
                 }
             }
         });
