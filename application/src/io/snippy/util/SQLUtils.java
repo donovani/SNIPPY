@@ -2,12 +2,10 @@ package io.snippy.util;
 
 import sun.dc.pr.PRError;
 
+import java.awt.*;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -28,9 +26,15 @@ public class SQLUtils {
     private static void connect() {
 
         if (connection == null) {
-            String url = "jdbc:mysql://localhost:3306/snippy";
+
+            String url = "jdbc:mysql://35.162.241.216:3306/snippy";
+            String username = "jimmr";
+            String password = "Software171!";
+
+            /*
+            String url = "jdbc:mysql://localhost/snippy";
             String username = "root";
-            String password = "password";
+            String password = "password";*/
             try {
                 connection = DriverManager.getConnection(url, username, password);
                 println("Connected");
@@ -56,13 +60,13 @@ public class SQLUtils {
             stmnt.setString(1, email);
             ResultSet rs = stmnt.executeQuery();
 
-            String usr = null;
+            int usr = -1;
             while (rs.next()) {
-                usr = rs.getString(1);
+                usr = rs.getInt(1);
                 break;
             }
             rs.close();
-            if (usr.equals("") || usr.equals(null)) {
+            if (usr == -1) {
                 return false;
             } else {
                 return true;
@@ -186,17 +190,72 @@ public class SQLUtils {
         }
     }
 
+    /* done
+     * Method: getUserID
+     * Pre: takes in a username
+     * Post: returns user id if ok, or -1 if error
+     */
+    public static int getUserID(String username) {
+        connect();
+
+        try {
+            String query = "SELECT `ID` FROM `users` WHERE `Email` LIKE ?";
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, username);
+
+            ResultSet rs = stmnt.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+
+        } catch (Exception e) {
+            printErr(e);
+            return -1;
+        }
+    }
+
+    /* done
+     * Method: getUser
+     * Pre: takes in a user's ID
+     * Post: returns user as a string (delim `) or null if error
+     */
+    public static String getUser(int ID) {
+        connect();
+
+        String usr = "";
+        String query = "SELECT * FROM `users` WHERE `ID` LIKE ?";
+        try {
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, ID);
+
+            ResultSet rs = stmnt.executeQuery();
+            while (rs.next()) {
+                usr = usr + rs.getInt(1) + "`";
+                usr = usr + rs.getString(3) + "`";
+                usr = usr + rs.getString(4) + "`";
+                usr = usr + rs.getString(5) + "`";
+                usr = usr + rs.getString(6) + "`";
+                usr = usr + rs.getString(7) + "`";
+                usr = usr + rs.getString(8) + "`";
+                usr = usr + rs.getString(9);
+            }
+            return usr;
+        } catch (Exception e) {
+            printErr(e);
+            return null;
+        }
+    }
+
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /* done
      * Method: login
 	 * Pre: takes in a username and password
-	 * Post: returns true if valid or false if now
+	 * Post: returns user id if ok, or -1 if error
 	 */
-    public static boolean login(String username, String password) {
+    public static int login(String username, String password) {
         if (userExists(username)) {
             connect();
             try {
-                String query = "SELECT `Password`, `s` FROM `users` WHERE `Email` LIKE ?";
+                String query = "SELECT `Password`, `s` FROM `users` WHERE `Email` = ?";
                 PreparedStatement stmnt = connection.prepareStatement(query);
                 stmnt.setString(1, username);
 
@@ -209,17 +268,56 @@ public class SQLUtils {
                     dbSalt = rs.getString(2);
                 }
 
-                if ((new String(hash(password, dbSalt))).equals(dbPass)) {
-                    return true;
+                println(dbSalt);
+                println(new String(hash(password, dbSalt)));
+
+                if (((hash(password, dbSalt))).equals(dbPass)) {
+                    return getUserID(username);
                 } else {
-                    return false;
+                    return -1;
                 }
             } catch (Exception e) {
                 printErr(e);
-                return false;
+                return -1;
             }
         }
-        return false;
+        return -1;
+    }
+
+    /* done
+     * Method: changePass
+     * Pre: takes in a username and password
+     * Post: returns true if password was successfully chanced or false if error
+     */
+    public static boolean changePass(String username, String pass) {
+        connect();
+
+        try {
+            String query = "SELECT `s` FROM `users` WHERE `Email` LIKE ?"; //get the user's salt
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, username);
+
+            ResultSet rs = stmnt.executeQuery();
+
+            String salt = "";
+            while (rs.next()) {
+                salt = rs.getString(1); //save the salt
+            }
+
+            pass = hash(pass, salt); //hash the new password
+
+            query = "UPDATE `users` SET `Password` = ? WHERE `Email` LIKE ?"; //change password
+            stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, pass);
+            stmnt.setString(2, username);
+
+            stmnt.execute();
+
+            return true;
+        } catch (Exception e) {
+            printErr(e);
+            return false;
+        }
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -613,6 +711,7 @@ public class SQLUtils {
     // ==========================DEBUG STUFF=============================
 
     private static boolean debug = false;
+    private static boolean print = true;
 
     /*done
      * Method: println
@@ -620,7 +719,7 @@ public class SQLUtils {
      * Post: outputs the string if debug is enabled
      */
     private static void println(String line) {
-        if (debug)
+        if (debug && print)
             System.out.println(line);
     }
 
@@ -679,10 +778,21 @@ public class SQLUtils {
 
             System.out.println("==========");
 
+            System.out.println("User 1's id: " + getUserID("hallja99@gmail.com"));
+            System.out.println("User 1: " + getUser(getUserID("hallja99@gmail.com")));
+
+            System.out.println("==========");
+
             System.out.println("User Exists (y): " + userExists("hallja99@gmail.com"));
             System.out.println("User Exists (N): " + userExists("hallj@gmail.com"));
             System.out.println("User Exists (Y): " + userExists(1));
             System.out.println("User Exists (N): " + userExists(0));
+
+            System.out.println("==========");
+
+            System.out.println("User 1's Password was changed: " + changePass("hallja99@gmail.com", "TEST"));
+            System.out.println("User'1 can login: " + login(getUser(1), "TEST"));
+            System.out.println("User 1: " + getUser(getUserID("hallja99@gmail.com")));
 
             System.out.println("==========");
 
@@ -701,6 +811,7 @@ public class SQLUtils {
             tags.add("Debug");
             tags.add("Testing");
             tags.add("Tags");
+
             System.out.println("Create Snip (3): " + createSnip(3, "Test 3", "The Third Snip", tags, "System.out.println(\"Snip #3\");"));
             System.out.println("Create Snip (4): " + createSnip(4, "Test 4", "The Fourth Snip", tags, "Java", "System.out.println(\"Snip #4\");"));
 
