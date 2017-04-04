@@ -2,6 +2,7 @@ package io.snippy.util;
 
 import sun.dc.pr.PRError;
 
+import java.awt.*;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.sql.Connection;
@@ -93,7 +94,7 @@ public class SQLUtils {
                 break;
             }
             rs.close();
-            ;
+
             if (usr.equals("") || usr.equals(null)) {
                 return false;
             } else {
@@ -179,6 +180,139 @@ public class SQLUtils {
             stmnt.setString(7, sA2);
             stmnt.setString(8, salt);
             stmnt.execute();
+            return true;
+        } catch (Exception e) {
+            printErr(e);
+            return false;
+        }
+    }
+
+    /* done
+     * Method: getUserID
+     * Pre: takes in a username
+     * Post: returns user id if ok, or -1 if error
+     */
+    public static int getUserID(String username) {
+        connect();
+
+        try {
+            String query = "SELECT `ID` FROM `users` WHERE `Email` LIKE ?";
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, username);
+
+            ResultSet rs = stmnt.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+
+        } catch (Exception e) {
+            printErr(e);
+            return -1;
+        }
+    }
+
+    /* done
+     * Method: getUser
+     * Pre: takes in a user's ID
+     * Post: returns user as a string (delim `) or null if error
+     */
+    public static String getUser(int ID) {
+        connect();
+
+        String usr = "";
+        String query = "SELECT * FROM `users` WHERE `ID` LIKE ?";
+        try {
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, ID);
+
+            ResultSet rs = stmnt.executeQuery();
+            while (rs.next()) {
+                usr = usr + rs.getInt(1) + "`";
+                usr = usr + rs.getString(3) + "`";
+                usr = usr + rs.getString(4) + "`";
+                usr = usr + rs.getString(5) + "`";
+                usr = usr + rs.getString(6) + "`";
+                usr = usr + rs.getString(7) + "`";
+                usr = usr + rs.getString(8) + "`";
+                usr = usr + rs.getString(9);
+            }
+            return usr;
+        } catch (Exception e) {
+            printErr(e);
+            return null;
+        }
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /* done
+     * Method: login
+	 * Pre: takes in a username and password
+	 * Post: returns user id if ok, or -1 if error
+	 */
+    public static int login(String username, String password) {
+        if (userExists(username)) {
+            connect();
+            try {
+                String query = "SELECT `Password`, `s` FROM `users` WHERE `Email` LIKE ?";
+                PreparedStatement stmnt = connection.prepareStatement(query);
+                stmnt.setString(1, username);
+
+                ResultSet rs = stmnt.executeQuery();
+
+                String dbPass = "";
+                String dbSalt = "";
+                while (rs.next()) {
+                    dbPass = rs.getString(1);
+                    dbSalt = rs.getString(2);
+                }
+
+                if ((new String(hash(password, dbSalt))).equals(dbPass)) {
+                    query = "SELECT `ID` FROM `users` WHERE `Email` LIKE ?";
+                    stmnt = connection.prepareStatement(query);
+                    stmnt.setString(1, username);
+
+                    rs = stmnt.executeQuery();
+                    rs.next();
+                    return rs.getInt(1);
+                } else {
+                    return -1;
+                }
+            } catch (Exception e) {
+                printErr(e);
+                return -1;
+            }
+        }
+        return -1;
+    }
+
+    /* done
+     * Method: changePass
+     * Pre: takes in a username and password
+     * Post: returns true if password was successfully chanced or false if error
+     */
+    public static boolean changePass(String username, String pass) {
+        connect();
+
+        try {
+            String query = "SELECT `s` FROM `users` WHERE `Email` LIKE ?"; //get the user's salt
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, username);
+
+            ResultSet rs = stmnt.executeQuery();
+
+            String salt = "";
+            while (rs.next()) {
+                salt = rs.getString(1); //save the salt
+            }
+
+            pass = hash(pass, salt); //hash the new password
+
+            query = "UPDATE `users` SET `Password` = ? WHERE `Email` LIKE ?"; //change password
+            stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, pass);
+            stmnt.setString(2, username);
+
+            stmnt.execute();
+
             return true;
         } catch (Exception e) {
             printErr(e);
@@ -643,10 +777,21 @@ public class SQLUtils {
 
             System.out.println("==========");
 
+            System.out.println("User 1's id: " + getUserID("hallja99@gmail.com"));
+            System.out.println("User 1: " + getUser(getUserID("hallja99@gmail.com")));
+
+            System.out.println("==========");
+
             System.out.println("User Exists (y): " + userExists("hallja99@gmail.com"));
             System.out.println("User Exists (N): " + userExists("hallj@gmail.com"));
             System.out.println("User Exists (Y): " + userExists(1));
             System.out.println("User Exists (N): " + userExists(0));
+
+            System.out.println("==========");
+
+            System.out.println("User 1's Password was changed: " + changePass(getUser(1), "TEST"));
+            System.out.println("User'1 can login: " + login(getUser(1), "TEST"));
+            System.out.println("User 1: " + getUser(getUserID("hallja99@gmail.com")));
 
             System.out.println("==========");
 
