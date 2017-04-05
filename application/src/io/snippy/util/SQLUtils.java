@@ -3,11 +3,13 @@ package io.snippy.util;
 import sun.dc.pr.PRError;
 
 import java.awt.*;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 
 public class SQLUtils {
@@ -246,42 +248,64 @@ public class SQLUtils {
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    /* done
+    /* done - fixed
      * Method: login
 	 * Pre: takes in a username and password
 	 * Post: returns user id if ok, or -1 if error
 	 */
     public static int login(String username, String password) {
-        if (userExists(username)) {
-            connect();
-            try {
-                String query = "SELECT `Password`, `s` FROM `users` WHERE `Email` = ?";
-                PreparedStatement stmnt = connection.prepareStatement(query);
-                stmnt.setString(1, username);
+        connect();
+        try {
+            String query = "SELECT `Password`, `s` FROM `users` WHERE `Email` = ?";
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, username);
 
-                ResultSet rs = stmnt.executeQuery();
+            ResultSet rs = stmnt.executeQuery();
 
-                String dbPass = "";
-                String dbSalt = "";
-                while (rs.next()) {
-                    dbPass = rs.getString(1);
-                    dbSalt = rs.getString(2);
-                }
+            String dbPass = "";
+            String dbSalt = "";
+            while (rs.next()) {
+                dbPass = rs.getString(1);
+                dbSalt = rs.getString(2);
+            }
 
-                println(dbSalt);
-                println(new String(hash(password, dbSalt)));
+            String hash = new String(hash(password, dbSalt));
 
-                if (((hash(password, dbSalt))).equals(dbPass)) {
-                    return getUserID(username);
-                } else {
-                    return -1;
-                }
-            } catch (Exception e) {
-                printErr(e);
+            query = "INSERT INTO `safe` (`str`) VALUES (?)";
+            stmnt = connection.prepareStatement(query);
+
+            stmnt.setString(1, hash);
+            stmnt.execute();
+
+            query = "SELECT * FROM `safe`";
+            stmnt = connection.prepareStatement(query);
+
+            rs = stmnt.executeQuery();
+
+            while (rs.next()) {
+                hash = rs.getString(1);
+                break;
+            }
+
+            connection.prepareStatement("TRUNCATE `safe`").execute();
+
+            //hash.replaceAll("�", "\u009D"); //sql sanitize);
+
+            System.out.println(hash);
+            System.out.println(dbPass);
+            System.out.println(dbSalt);
+
+            if (hash.equals(dbPass)) {
+                int id = getUserID(username);
+                println("Id: " + id);
+                return id;
+            } else {
                 return -1;
             }
+        } catch (Exception e) {
+            printErr(e);
+            return -1;
         }
-        return -1;
     }
 
     /* done
@@ -686,9 +710,13 @@ public class SQLUtils {
         try {
             MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
             password = password + salt;
+
             byte[] passBytes = password.getBytes();
             byte[] passHash = sha256.digest(passBytes);
-            return new String(passHash);
+
+            String hash = new String(passHash);
+
+            return hash;
         } catch (Exception e) {
             printErr(e);
             return null;
@@ -699,19 +727,23 @@ public class SQLUtils {
     /*done
      * Method: generateSalt
      * Pre: none
-     * Post: returns a 20 byte string of salt
+     * Post: returns a 20 int string of salt
      */
     public static String generateSalt() {
-        SecureRandom random = new SecureRandom();
-        byte bytes[] = new byte[20];
-        random.nextBytes(bytes);
-        return new String(bytes);
+        Random rand = new Random();
+
+        String salt = "";
+
+        for (int i = 0; i < 20; i++) {
+            salt = salt + rand.nextInt(10);
+        }
+        return salt;
     }
 
     // ==========================DEBUG STUFF=============================
 
-    private static boolean debug = false;
-    private static boolean print = true;
+    private static boolean debug = true;
+    private static boolean print = false;
 
     /*done
      * Method: println
@@ -791,7 +823,7 @@ public class SQLUtils {
             System.out.println("==========");
 
             System.out.println("User 1's Password was changed: " + changePass("hallja99@gmail.com", "TEST"));
-            System.out.println("User'1 can login: " + login(getUser(1), "TEST"));
+            System.out.println("User'1 can login: " + login("hallja99@gmail.com", "TEST"));
             System.out.println("User 1: " + getUser(getUserID("hallja99@gmail.com")));
 
             System.out.println("==========");
