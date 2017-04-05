@@ -79,8 +79,14 @@ public class MainScene extends StageScene {
 
 		JFXButton newButton = (JFXButton) lookup("#base_new");
 		newButton.setOnAction(event -> createSnip());
+
+		JFXButton teamsButton = (JFXButton) lookup ("#base_teams");
+		teamsButton.setOnAction(event -> manageTeams());
 	}
 
+	public void manageTeams(){
+		//Implement
+	}
 	public void createSnip() {
 		//Clear title and add prompt text
 		JFXTextField snipTitle = ((JFXTextField) lookup("#main_title"));
