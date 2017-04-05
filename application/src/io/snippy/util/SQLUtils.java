@@ -742,7 +742,7 @@ public class SQLUtils {
 
     // ==========================DEBUG STUFF=============================
 
-    private static boolean debug = true;
+    private static boolean debug = false;
     private static boolean print = false;
 
     /*done
