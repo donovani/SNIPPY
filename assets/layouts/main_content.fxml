@@ -9,11 +9,11 @@
 
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #ffffff; -fx-padding: 32;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <JFXButton fx:id="main_title" alignment="BOTTOM_LEFT" layoutX="10.0" layoutY="11.0" prefHeight="39.0" prefWidth="330.0" text="Title">
+      <JFXTextField fx:id="main_title" alignment="BOTTOM_LEFT" layoutX="10.0" layoutY="11.0" prefHeight="39.0" prefWidth="330.0" text="Title">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
-      </JFXButton>
+      </JFXTextField>
       <JFXButton fx:id="main_delete" layoutX="549.0" layoutY="18.0" style="-fx-background-color: #ff0000;" text="DEL" textFill="WHITE" />
       <JFXButton fx:id="main_share" layoutX="488.0" layoutY="18.0" style="-fx-background-color: #44aaff;" text="SHARE" textFill="WHITE" />
       <Text fx:id="main_taglabel" layoutX="14.0" layoutY="72.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tags:" />
@@ -34,6 +34,6 @@
          </font>
       </TextArea>
       <Label fx:id="main_hklabel" layoutX="74.0" layoutY="370.0" text="No hotkey set." />
-      <JFXComboBox fx:id="main_language" focusColor="#ff6600" layoutX="351.0" layoutY="18.0" prefHeight="25.0" prefWidth="128.0" promptText="l a n g u a g e" />
+      <JFXComboBox fx:id="main_language" focusColor="#ff6600" layoutX="351.0" layoutY="18.0" prefHeight="25.0" prefWidth="128.0" promptText = "Select Language" />
    </children>
 </Pane>
