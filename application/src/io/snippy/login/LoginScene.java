@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 import io.snippy.core.StageScene;
+import io.snippy.core.User;
 import io.snippy.main.MainScene;
 import io.snippy.recover.RecoverEmailScene;
 import io.snippy.register.RegisterScene;
@@ -23,6 +24,8 @@ import java.awt.event.ActionEvent;
  */
 public class LoginScene extends StageScene {
 
+    public static User currentUser;
+
     public LoginScene(Stage stage) {
         super(stage);
     }
@@ -34,6 +37,7 @@ public class LoginScene extends StageScene {
 
     @Override
     public void onCreate() {
+        //boolean debug = true; //NEEDS TO BE REMOVED
         JFXButton loginButton = (JFXButton) lookup("#login_submit");
 
         loginButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
@@ -44,6 +48,7 @@ public class LoginScene extends StageScene {
 
                 int userID = SQLUtils.login(username, password); //get user's id
                 if (userID != -1) {//if the id isnt -1
+                    currentUser = new User(userID);
                     switchScreen(MainScene.class); //good to go
                 } else { //else error
                     lookup("#login_error").setVisible(true);
