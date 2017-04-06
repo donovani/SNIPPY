@@ -2,14 +2,14 @@ package io.snippy.util;
 
 import sun.dc.pr.PRError;
 
+import java.awt.*;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 
 public class SQLUtils {
@@ -28,9 +28,15 @@ public class SQLUtils {
     private static void connect() {
 
         if (connection == null) {
-            String url = "jdbc:mysql://localhost:3306/snippy";
+
+            String url = "jdbc:mysql://35.162.241.216:3306/snippy";
+            String username = "jimmr";
+            String password = "Software171!";
+
+            /*
+            String url = "jdbc:mysql://localhost/snippy";
             String username = "root";
-            String password = "password";
+            String password = "password";*/
             try {
                 connection = DriverManager.getConnection(url, username, password);
                 println("Connected");
@@ -56,13 +62,13 @@ public class SQLUtils {
             stmnt.setString(1, email);
             ResultSet rs = stmnt.executeQuery();
 
-            String usr = null;
+            int usr = -1;
             while (rs.next()) {
-                usr = rs.getString(1);
+                usr = rs.getInt(1);
                 break;
             }
             rs.close();
-            if (usr.equals("") || usr.equals(null)) {
+            if (usr == -1) {
                 return false;
             } else {
                 return true;
@@ -186,40 +192,152 @@ public class SQLUtils {
         }
     }
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     /* done
+     * Method: getUserID
+     * Pre: takes in a username
+     * Post: returns user id if ok, or -1 if error
+     */
+    public static int getUserID(String username) {
+        connect();
+
+        try {
+            String query = "SELECT `ID` FROM `users` WHERE `Email` LIKE ?";
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, username);
+
+            ResultSet rs = stmnt.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+
+        } catch (Exception e) {
+            printErr(e);
+            return -1;
+        }
+    }
+
+    /* done
+     * Method: getUser
+     * Pre: takes in a user's ID
+     * Post: returns user as a string (delim `) or null if error
+     */
+    public static String getUser(int ID) {
+        connect();
+
+        String usr = "";
+        String query = "SELECT * FROM `users` WHERE `ID` LIKE ?";
+        try {
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, ID);
+
+            ResultSet rs = stmnt.executeQuery();
+            while (rs.next()) {
+                usr = usr + rs.getInt(1) + "`";
+                usr = usr + rs.getString(3) + "`";
+                usr = usr + rs.getString(4) + "`";
+                usr = usr + rs.getString(5) + "`";
+                usr = usr + rs.getString(6) + "`";
+                usr = usr + rs.getString(7) + "`";
+                usr = usr + rs.getString(8) + "`";
+                usr = usr + rs.getString(9);
+            }
+            return usr;
+        } catch (Exception e) {
+            printErr(e);
+            return null;
+        }
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    /* done - fixed
      * Method: login
 	 * Pre: takes in a username and password
-	 * Post: returns true if valid or false if now
+	 * Post: returns user id if ok, or -1 if error
 	 */
-    public static boolean login(String username, String password) {
-        if (userExists(username)) {
-            connect();
-            try {
-                String query = "SELECT `Password`, `s` FROM `users` WHERE `Email` LIKE ?";
-                PreparedStatement stmnt = connection.prepareStatement(query);
-                stmnt.setString(1, username);
+    public static int login(String username, String password) {
+        connect();
+        try {
+            String query = "SELECT `Password`, `s` FROM `users` WHERE `Email` = ?";
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, username);
 
-                ResultSet rs = stmnt.executeQuery();
+            ResultSet rs = stmnt.executeQuery();
 
-                String dbPass = "";
-                String dbSalt = "";
-                while (rs.next()) {
-                    dbPass = rs.getString(1);
-                    dbSalt = rs.getString(2);
-                }
-
-                if ((new String(hash(password, dbSalt))).equals(dbPass)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } catch (Exception e) {
-                printErr(e);
-                return false;
+            String dbPass = "";
+            String dbSalt = "";
+            while (rs.next()) {
+                dbPass = rs.getString(1);
+                dbSalt = rs.getString(2);
             }
+
+            String hash = new String(hash(password, dbSalt));
+
+            query = "INSERT INTO `safe` (`str`) VALUES (?)";
+            stmnt = connection.prepareStatement(query);
+
+            stmnt.setString(1, hash);
+            stmnt.execute();
+
+            query = "SELECT * FROM `safe`";
+            stmnt = connection.prepareStatement(query);
+
+            rs = stmnt.executeQuery();
+
+            while (rs.next()) {
+                hash = rs.getString(1);
+                break;
+            }
+
+            connection.prepareStatement("TRUNCATE `safe`").execute();
+
+            //hash.replaceAll("�", "\u009D"); //sql sanitize);
+
+            if (hash.equals(dbPass)) {
+                int id = getUserID(username);
+                println("Id: " + id);
+                return id;
+            } else {
+                return -1;
+            }
+        } catch (Exception e) {
+            printErr(e);
+            return -1;
         }
-        return false;
+    }
+
+    /* done
+     * Method: changePass
+     * Pre: takes in a username and password
+     * Post: returns true if password was successfully chanced or false if error
+     */
+    public static boolean changePass(String username, String pass) {
+        connect();
+
+        try {
+            String query = "SELECT `s` FROM `users` WHERE `Email` LIKE ?"; //get the user's salt
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, username);
+
+            ResultSet rs = stmnt.executeQuery();
+
+            String salt = "";
+            while (rs.next()) {
+                salt = rs.getString(1); //save the salt
+            }
+
+            pass = hash(pass, salt); //hash the new password
+
+            query = "UPDATE `users` SET `Password` = ? WHERE `Email` LIKE ?"; //change password
+            stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, pass);
+            stmnt.setString(2, username);
+
+            stmnt.execute();
+
+            return true;
+        } catch (Exception e) {
+            printErr(e);
+            return false;
+        }
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -326,7 +444,7 @@ public class SQLUtils {
      * Pre: takes in the user's id
      * Post: returns all of the user's snips as a string (` delim) or null if
      * error
-     * ID`UserID`Title`Desc`Tags`Lang`Code
+     * ID`UserID`Title`Tags`Lang`Code
      */
     public static ArrayList<String> getUserSnips(int userID) {
         connect();
@@ -343,12 +461,51 @@ public class SQLUtils {
                     int id = rs.getInt(1);
                     int uId = rs.getInt(2);
                     String title = rs.getString(3);
-                    String desc = rs.getString(4);
-                    String tags = rs.getString(5);
-                    String lang = rs.getString(6);
-                    String code = rs.getString(7);
+                    String tags = rs.getString(4);
+                    String lang = rs.getString(5);
+                    String code = rs.getString(6);
 
-                    String tmp = id + "`" + uId + "`" + title + "`" + desc + "`" + tags + "`" + lang + "`" + code;
+                    String tmp = id + "`" + uId + "`" + title + "`" + tags + "`" + lang + "`" + code;
+                    snips.add(tmp);
+                }
+
+            } catch (Exception e) {
+                printErr(e);
+                return null;
+            }
+            return snips;
+        } catch (Exception e) {
+            printErr(e);
+            return null;
+        }
+    }
+
+    /* done
+     * Method: getUsersLastFiftySnips
+     * Pre: takes in the user's id
+     * Post: returns all of the user's last 50 snips as a string (latest to newest) (` delim) or null if error
+     * ID`UserID`Title`Tags`Lang`Code
+     */
+    public static ArrayList<String> getUsersLastFiftySnips(int userID) {
+        connect();
+        try {
+            ArrayList<String> snips = new ArrayList<String>();
+
+            String query = "SELECT * FROM `snips` WHERE `userID` like ? ORDER BY `ID` DESC LIMIT 50";
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, userID);
+            ResultSet rs = stmnt.executeQuery();
+
+            try {
+                while (rs.next()) {
+                    int id = rs.getInt(1);
+                    int uId = rs.getInt(2);
+                    String title = rs.getString(3);
+                    String tags = rs.getString(4);
+                    String lang = rs.getString(5);
+                    String code = rs.getString(6);
+
+                    String tmp = id + "`" + uId + "`" + title + "`" + tags + "`" + lang + "`" + code;
                     snips.add(tmp);
                 }
 
@@ -368,7 +525,7 @@ public class SQLUtils {
      * Pre: takes in a group id
      * Post: returns all UNIQUE snips part of that group as a string (` delim) or null
      * if error
-     * ID`UserID`Title`Desc`Tags`Lang`Code
+     * ID`UserID`Title`Tags`Lang`Code
      */
     public static ArrayList<String> getGroupSnips(int userID, int groupID) {
         connect();
@@ -385,12 +542,11 @@ public class SQLUtils {
                     int id = rs.getInt(1);
                     int uId = rs.getInt(2);
                     String title = rs.getString(3);
-                    String desc = rs.getString(4);
-                    String tags = rs.getString(5);
-                    String lang = rs.getString(6);
-                    String code = rs.getString(7);
+                    String tags = rs.getString(4);
+                    String lang = rs.getString(5);
+                    String code = rs.getString(6);
 
-                    String tmp = id + "`" + uId + "`" + title + "`" + desc + "`" + tags + "`" + lang + "`" + code;
+                    String tmp = id + "`" + uId + "`" + title + "`" + tags + "`" + lang + "`" + code;
                     if (uId == userID) {//Do not add if user's snip
                     } else {
                         snips.add(tmp);
@@ -406,15 +562,16 @@ public class SQLUtils {
             return null;
         }
     }
+
     /*done
      * Method: createSnip
 	 * Pre: Takes in at least a UserID, title, and code (overloads give more
 	 * options)
-	 * Post: returns true if successful, false if not
+	 * Post: returns ID if successful, -1 if not
 	 * Note: if tags, tags are seperated with '~' in the DB
 	 */
 
-    public static boolean createSnip(int userID, String title, String code) {
+    public static int createSnip(int userID, String title, String code) {
         connect();
         try {
             String query = "INSERT INTO `snippy`.`snips` (`UserID`, `Title`, `Code`) VALUES (?,?,?);";
@@ -423,31 +580,49 @@ public class SQLUtils {
             stmnt.setString(2, title);
             stmnt.setString(3, code);
             stmnt.execute();
-            return true;
+
+            query = "SELECT `ID` FROM `snips` WHERE `UserID` LIKE ? ORDER BY `ID` DESC LIMIT 1";
+            stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, userID);
+            ResultSet rs = stmnt.executeQuery();
+
+            while (rs.next()) {
+                return rs.getInt(1);
+            }
+            return -1;
         } catch (Exception e) {
             printErr(e);
-            return false;
+            return -1;
         }
     }
 
-    public static boolean createSnip(int userID, String title, String desc, String code) {
+    public static int createSnip(int userID, String title, String lang, String code) {
         connect();
         try {
-            String query = "INSERT INTO `snippy`.`snips` (`UserID`, `Title`, `Desc`, `Code`) VALUES (?,?,?,?);";
+            String query = "INSERT INTO `snippy`.`snips` (`UserID`, `Title`, `Lang`, `Code`) VALUES (?,?,?,?);";
             PreparedStatement stmnt = connection.prepareStatement(query);
             stmnt.setInt(1, userID);
             stmnt.setString(2, title);
-            stmnt.setString(3, desc);
+            stmnt.setString(3, lang);
             stmnt.setString(4, code);
             stmnt.execute();
-            return true;
+
+            query = "SELECT `ID` FROM `snips` WHERE `UserID` LIKE ? ORDER BY `ID` DESC LIMIT 1";
+            stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, userID);
+            ResultSet rs = stmnt.executeQuery();
+
+            while (rs.next()) {
+                return rs.getInt(1);
+            }
+            return -1;
         } catch (Exception e) {
             printErr(e);
-            return false;
+            return -1;
         }
     }
 
-    public static boolean createSnip(int userID, String title, String desc, ArrayList<String> tags, String code) {
+    public static int createSnip(int userID, String title, ArrayList<String> tags, String code) {
         String tgs = "";
         for (int i = 0; i < tags.size(); i++) {
             tgs = tags.get(i) + "~";
@@ -456,43 +631,59 @@ public class SQLUtils {
 
         connect();
         try {
-            String query = "INSERT INTO `snippy`.`snips` (`UserID`, `Title`, `Desc`, `Tags`, `Code`) VALUES (?,?,?,?,?);";
+            String query = "INSERT INTO `snippy`.`snips` (`UserID`, `Title`, `Tags`, `Code`) VALUES (?,?,?,?);";
             PreparedStatement stmnt = connection.prepareStatement(query);
             stmnt.setInt(1, userID);
             stmnt.setString(2, title);
-            stmnt.setString(3, desc);
-            stmnt.setString(4, tgs);
+            stmnt.setString(3, tgs);
+            stmnt.setString(4, code);
+            stmnt.execute();
+
+            query = "SELECT `ID` FROM `snips` WHERE `UserID` LIKE ? ORDER BY `ID` DESC LIMIT 1";
+            stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, userID);
+            ResultSet rs = stmnt.executeQuery();
+
+            while (rs.next()) {
+                return rs.getInt(1);
+            }
+            return -1;
+        } catch (Exception e) {
+            printErr(e);
+            return -1;
+        }
+    }
+
+    public static int createSnip(int userID, String title, ArrayList<String> tags, String lang, String code) {
+        String tgs = "";
+        for (int i = 0; i < tags.size(); i++) {
+            tgs = tags.get(i) + "~";
+        }
+        tgs = tgs.substring(0, tgs.length() - 1);
+
+        connect();
+        try {
+            String query = "INSERT INTO `snippy`.`snips` (`UserID`, `Title`, `Tags`, `Lang`, `Code`) VALUES (?,?,?,?,?);";
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, userID);
+            stmnt.setString(2, title);
+            stmnt.setString(3, tgs);
+            stmnt.setString(4, lang);
             stmnt.setString(5, code);
             stmnt.execute();
-            return true;
-        } catch (Exception e) {
-            printErr(e);
-            return false;
-        }
-    }
 
-    public static boolean createSnip(int userID, String title, String desc, ArrayList<String> tags, String lang, String code) {
-        String tgs = "";
-        for (int i = 0; i < tags.size(); i++) {
-            tgs = tags.get(i) + "~";
-        }
-        tgs = tgs.substring(0, tgs.length() - 1);
-
-        connect();
-        try {
-            String query = "INSERT INTO `snippy`.`snips` (`UserID`, `Title`, `Desc`, `Tags`, `Lang`, `Code`) VALUES (?,?,?,?,?,?);";
-            PreparedStatement stmnt = connection.prepareStatement(query);
+            query = "SELECT `ID` FROM `snips` WHERE `UserID` LIKE ? ORDER BY `ID` DESC LIMIT 1";
+            stmnt = connection.prepareStatement(query);
             stmnt.setInt(1, userID);
-            stmnt.setString(2, title);
-            stmnt.setString(3, desc);
-            stmnt.setString(4, tgs);
-            stmnt.setString(5, lang);
-            stmnt.setString(6, code);
-            stmnt.execute();
-            return true;
+            ResultSet rs = stmnt.executeQuery();
+
+            while (rs.next()) {
+                return rs.getInt(1);
+            }
+            return -1;
         } catch (Exception e) {
             printErr(e);
-            return false;
+            return -1;
         }
     }
 
@@ -588,9 +779,13 @@ public class SQLUtils {
         try {
             MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
             password = password + salt;
+
             byte[] passBytes = password.getBytes();
             byte[] passHash = sha256.digest(passBytes);
-            return new String(passHash);
+
+            String hash = new String(passHash);
+
+            return hash;
         } catch (Exception e) {
             printErr(e);
             return null;
@@ -601,18 +796,23 @@ public class SQLUtils {
     /*done
      * Method: generateSalt
      * Pre: none
-     * Post: returns a 20 byte string of salt
+     * Post: returns a 20 int string of salt
      */
     public static String generateSalt() {
-        SecureRandom random = new SecureRandom();
-        byte bytes[] = new byte[20];
-        random.nextBytes(bytes);
-        return new String(bytes);
+        Random rand = new Random();
+
+        String salt = "";
+
+        for (int i = 0; i < 20; i++) {
+            salt = salt + rand.nextInt(10);
+        }
+        return salt;
     }
 
     // ==========================DEBUG STUFF=============================
 
     private static boolean debug = false;
+    private static boolean print = false;
 
     /*done
      * Method: println
@@ -620,7 +820,7 @@ public class SQLUtils {
      * Post: outputs the string if debug is enabled
      */
     private static void println(String line) {
-        if (debug)
+        if (debug && print)
             System.out.println(line);
     }
 
@@ -679,10 +879,21 @@ public class SQLUtils {
 
             System.out.println("==========");
 
+            System.out.println("User 1's id: " + getUserID("hallja99@gmail.com"));
+            System.out.println("User 1: " + getUser(getUserID("hallja99@gmail.com")));
+
+            System.out.println("==========");
+
             System.out.println("User Exists (y): " + userExists("hallja99@gmail.com"));
             System.out.println("User Exists (N): " + userExists("hallj@gmail.com"));
             System.out.println("User Exists (Y): " + userExists(1));
             System.out.println("User Exists (N): " + userExists(0));
+
+            System.out.println("==========");
+
+            System.out.println("User 1's Password was changed: " + changePass("hallja99@gmail.com", "TEST"));
+            System.out.println("User'1 can login: " + login("hallja99@gmail.com", "TEST"));
+            System.out.println("User 1: " + getUser(getUserID("hallja99@gmail.com")));
 
             System.out.println("==========");
 
@@ -695,14 +906,15 @@ public class SQLUtils {
             System.out.println("==========");
 
             System.out.println("Create Snip (1): " + createSnip(1, "Test 1", "System.out.println(\"Snip #1\");"));
-            System.out.println("Create Snip (2): " + createSnip(2, "Test 2", "The Second Snip", "System.out.println(\"Snip #2\");"));
+            System.out.println("Create Snip (2): " + createSnip(2, "Test 2", "Java", "System.out.println(\"Snip #2\");"));
 
             ArrayList<String> tags = new ArrayList<>();
             tags.add("Debug");
             tags.add("Testing");
             tags.add("Tags");
-            System.out.println("Create Snip (3): " + createSnip(3, "Test 3", "The Third Snip", tags, "System.out.println(\"Snip #3\");"));
-            System.out.println("Create Snip (4): " + createSnip(4, "Test 4", "The Fourth Snip", tags, "Java", "System.out.println(\"Snip #4\");"));
+
+            System.out.println("Create Snip (3): " + createSnip(3, "Test 3", tags, "System.out.println(\"Snip #3\");"));
+            System.out.println("Create Snip (4): " + createSnip(4, "Test 4", tags, "Java", "System.out.println(\"Snip #4\");"));
 
             System.out.println("==========");
 
@@ -715,7 +927,7 @@ public class SQLUtils {
 
             System.out.println("==========");
 
-            System.out.println("User 1 Snips: " + Arrays.toString(getUserSnips(1).toArray()));
+            System.out.println("User 1's Last 50 Snips: " + Arrays.toString(getUsersLastFiftySnips(1).toArray()));
             System.out.println("User 2 Snips: " + Arrays.toString(getUserSnips(2).toArray()));
             System.out.println("User 3 Snips: " + Arrays.toString(getUserSnips(3).toArray()));
             System.out.println("User 4 Snips: " + Arrays.toString(getUserSnips(4).toArray()));

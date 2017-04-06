@@ -25,6 +25,8 @@ import java.util.ArrayList;
  * Created by Ian on 2/18/2017.
  */
 public class RegisterScene extends StageScene {
+    public static final String EMAIL_REGEX = "^([\\w\\-\\.])+@(([\\d\\w\\-])+\\.)+[a-zA-Z]{2,}$";
+
     public RegisterScene(Stage primaryStage) {
         super(primaryStage);
     }
@@ -36,32 +38,37 @@ public class RegisterScene extends StageScene {
 
     @Override
     public void onCreate() {
-        JFXButton cancelButton = (JFXButton) lookup("#register_cancel");
-        cancelButton.setOnAction(event -> switchScreen(LoginScene.class));
+        JFXButton cancelButton = (JFXButton) lookup("#register_cancel"); //cancel button
+        cancelButton.setOnAction(event -> switchScreen(LoginScene.class)); //go to login screen on click
 
-        ArrayList<String> comboItems = new ArrayList<String>();
+        ArrayList<String> comboItems = new ArrayList<String>(); //store the combo box items
         comboItems.add("");
         comboItems.add("In what city were you born?");
         comboItems.add("What is the name of your first school?");
         comboItems.add("What high school did you attend?");
         comboItems.add("What is your favorite movie?");
         comboItems.add("What street did you grow up on?");
-        comboItems.add("What is your father's middle name?");
-        comboItems.add("What is your favorite color?");
-        comboItems.add("Which is your favorite web browser?");
-        comboItems.add("What was the make of your first car?");
-        comboItems.add("Who is your favorite actor, musician, or artist?");
 
-        JFXComboBox q1 = (JFXComboBox) lookup("#register_question1");
-        JFXComboBox q2 = (JFXComboBox) lookup("#register_question2");
-        q1.getItems().addAll(comboItems);
-        q2.getItems().addAll(comboItems);
+        ArrayList<String> comboItems2 = new ArrayList<String>(); //store the combo box items
+        comboItems2.add("");
+        comboItems2.add("What is your father's middle name?");
+        comboItems2.add("What is your favorite color?");
+        comboItems2.add("Which is your favorite web browser?");
+        comboItems2.add("What was the make of your first car?");
+        comboItems2.add("Who is your favorite actor, musician, or artist?");
 
-        JFXButton submitButton = (JFXButton) lookup("#register_submit");
-        submitButton.setOnAction(new EventHandler<ActionEvent>() {
+        JFXComboBox q1 = (JFXComboBox) lookup("#register_question1"); //get combo box 1
+        JFXComboBox q2 = (JFXComboBox) lookup("#register_question2"); // get combo box 2
+
+        q1.getItems().addAll(comboItems); // add items to the box
+        q2.getItems().addAll(comboItems2); //add items to the other box
+
+        JFXButton submitButton = (JFXButton) lookup("#register_submit"); //next step button
+        submitButton.setOnAction(new EventHandler<ActionEvent>() { //on click
             @Override
             public void handle(javafx.event.ActionEvent event) {
 
+                //Store values
                 String email = getValue((JFXTextField) lookup("#register_email"));
                 String name = getValue((JFXTextField) lookup("#register_name"));
                 String pass1 = getValue((JFXPasswordField) lookup("#register_password"));
@@ -84,12 +91,12 @@ public class RegisterScene extends StageScene {
                 println("==========\n\n");
                 //END DEBUG
 
-                if (email.equals("") || email.indexOf("@") == -1) { //no email visible
+                if (!email.matches(EMAIL_REGEX) || email.equals("")) { //no email visible
                     hideErrors();
                     lookup("#register_error1").setVisible(true);
 
                     printErr("Email issue");
-                } else if (SQLUtils.userExists(email)) {
+                } else if (SQLUtils.userExists(email)) {//user already exists
                     hideErrors();
                     lookup("#register_error5").setVisible(true);
 
@@ -114,8 +121,7 @@ public class RegisterScene extends StageScene {
                     lookup("#register_error4").setVisible(true);
 
                     println("Security question 2 is blank or response is blank");
-                } else {
-
+                } else { //valid info
                     if (!sec1.equals("") && seca1.equals("")) {//allow the user to still register if they decided not to pic a sec question
                         sec1 = "";
                         seca1 = "";
@@ -148,6 +154,10 @@ public class RegisterScene extends StageScene {
         });
     }
 
+    /*
+     *Pre: takes in a textfield
+     *Post: returns the value or "" if no value present
+     */
     private String getValue(JFXTextField field) {//look up the value
         String val = "";
         try {//set the values to ones in the fields
@@ -158,6 +168,10 @@ public class RegisterScene extends StageScene {
         return val;
     }
 
+    /*
+     *Pre: takes in a combobox
+     *Post: returns the value or "" if no value present
+     */
     private String getValue(JFXComboBox field) {//look up the value
         String val = "";
         try {//set the values to ones in the fields
@@ -168,6 +182,10 @@ public class RegisterScene extends StageScene {
         return val;
     }
 
+    /*
+     *Pre: takes in a password
+     *Post: returns the value or "" if no value present
+     */
     private String getValue(JFXPasswordField field) {//look up the value
         String val = "";
         try {//set the values to ones in the fields
