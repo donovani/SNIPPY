@@ -34,4 +34,9 @@ public final class UXUtils {
 			return new Pane();
 		}
 	}
+
+	public static void loadCSS() {
+		//TODO: Custom CSS loading to try out data-driven styling
+		//this.getClass().getResource( R. )
+	}
 }
