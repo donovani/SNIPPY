@@ -291,10 +291,6 @@ public class SQLUtils {
 
             //hash.replaceAll("�", "\u009D"); //sql sanitize);
 
-            System.out.println(hash);
-            System.out.println(dbPass);
-            System.out.println(dbSalt);
-
             if (hash.equals(dbPass)) {
                 int id = getUserID(username);
                 println("Id: " + id);
@@ -448,7 +444,7 @@ public class SQLUtils {
      * Pre: takes in the user's id
      * Post: returns all of the user's snips as a string (` delim) or null if
      * error
-     * ID`UserID`Title`Desc`Tags`Lang`Code
+     * ID`UserID`Title`Tags`Lang`Code
      */
     public static ArrayList<String> getUserSnips(int userID) {
         connect();
@@ -465,12 +461,11 @@ public class SQLUtils {
                     int id = rs.getInt(1);
                     int uId = rs.getInt(2);
                     String title = rs.getString(3);
-                    String desc = rs.getString(4);
-                    String tags = rs.getString(5);
-                    String lang = rs.getString(6);
-                    String code = rs.getString(7);
+                    String tags = rs.getString(4);
+                    String lang = rs.getString(5);
+                    String code = rs.getString(6);
 
-                    String tmp = id + "`" + uId + "`" + title + "`" + desc + "`" + tags + "`" + lang + "`" + code;
+                    String tmp = id + "`" + uId + "`" + title + "`" + tags + "`" + lang + "`" + code;
                     snips.add(tmp);
                 }
 
@@ -490,7 +485,7 @@ public class SQLUtils {
      * Pre: takes in a group id
      * Post: returns all UNIQUE snips part of that group as a string (` delim) or null
      * if error
-     * ID`UserID`Title`Desc`Tags`Lang`Code
+     * ID`UserID`Title`Tags`Lang`Code
      */
     public static ArrayList<String> getGroupSnips(int userID, int groupID) {
         connect();
@@ -507,12 +502,11 @@ public class SQLUtils {
                     int id = rs.getInt(1);
                     int uId = rs.getInt(2);
                     String title = rs.getString(3);
-                    String desc = rs.getString(4);
-                    String tags = rs.getString(5);
-                    String lang = rs.getString(6);
-                    String code = rs.getString(7);
+                    String tags = rs.getString(4);
+                    String lang = rs.getString(5);
+                    String code = rs.getString(6);
 
-                    String tmp = id + "`" + uId + "`" + title + "`" + desc + "`" + tags + "`" + lang + "`" + code;
+                    String tmp = id + "`" + uId + "`" + title + "`" + tags + "`" + lang + "`" + code;
                     if (uId == userID) {//Do not add if user's snip
                     } else {
                         snips.add(tmp);
@@ -552,14 +546,14 @@ public class SQLUtils {
         }
     }
 
-    public static boolean createSnip(int userID, String title, String desc, String code) {
+    public static boolean createSnip(int userID, String title, String lang, String code) {
         connect();
         try {
-            String query = "INSERT INTO `snippy`.`snips` (`UserID`, `Title`, `Desc`, `Code`) VALUES (?,?,?,?);";
+            String query = "INSERT INTO `snippy`.`snips` (`UserID`, `Title`, `Lang`, `Code`) VALUES (?,?,?,?);";
             PreparedStatement stmnt = connection.prepareStatement(query);
             stmnt.setInt(1, userID);
             stmnt.setString(2, title);
-            stmnt.setString(3, desc);
+            stmnt.setString(3, lang);
             stmnt.setString(4, code);
             stmnt.execute();
             return true;
@@ -569,7 +563,7 @@ public class SQLUtils {
         }
     }
 
-    public static boolean createSnip(int userID, String title, String desc, ArrayList<String> tags, String code) {
+    public static boolean createSnip(int userID, String title, ArrayList<String> tags, String code) {
         String tgs = "";
         for (int i = 0; i < tags.size(); i++) {
             tgs = tags.get(i) + "~";
@@ -578,13 +572,12 @@ public class SQLUtils {
 
         connect();
         try {
-            String query = "INSERT INTO `snippy`.`snips` (`UserID`, `Title`, `Desc`, `Tags`, `Code`) VALUES (?,?,?,?,?);";
+            String query = "INSERT INTO `snippy`.`snips` (`UserID`, `Title`, `Tags`, `Code`) VALUES (?,?,?,?);";
             PreparedStatement stmnt = connection.prepareStatement(query);
             stmnt.setInt(1, userID);
             stmnt.setString(2, title);
-            stmnt.setString(3, desc);
-            stmnt.setString(4, tgs);
-            stmnt.setString(5, code);
+            stmnt.setString(3, tgs);
+            stmnt.setString(4, code);
             stmnt.execute();
             return true;
         } catch (Exception e) {
@@ -593,7 +586,7 @@ public class SQLUtils {
         }
     }
 
-    public static boolean createSnip(int userID, String title, String desc, ArrayList<String> tags, String lang, String code) {
+    public static boolean createSnip(int userID, String title, ArrayList<String> tags, String lang, String code) {
         String tgs = "";
         for (int i = 0; i < tags.size(); i++) {
             tgs = tags.get(i) + "~";
@@ -602,14 +595,13 @@ public class SQLUtils {
 
         connect();
         try {
-            String query = "INSERT INTO `snippy`.`snips` (`UserID`, `Title`, `Desc`, `Tags`, `Lang`, `Code`) VALUES (?,?,?,?,?,?);";
+            String query = "INSERT INTO `snippy`.`snips` (`UserID`, `Title`, `Tags`, `Lang`, `Code`) VALUES (?,?,?,?,?);";
             PreparedStatement stmnt = connection.prepareStatement(query);
             stmnt.setInt(1, userID);
             stmnt.setString(2, title);
-            stmnt.setString(3, desc);
-            stmnt.setString(4, tgs);
-            stmnt.setString(5, lang);
-            stmnt.setString(6, code);
+            stmnt.setString(3, tgs);
+            stmnt.setString(4, lang);
+            stmnt.setString(5, code);
             stmnt.execute();
             return true;
         } catch (Exception e) {
@@ -837,15 +829,15 @@ public class SQLUtils {
             System.out.println("==========");
 
             System.out.println("Create Snip (1): " + createSnip(1, "Test 1", "System.out.println(\"Snip #1\");"));
-            System.out.println("Create Snip (2): " + createSnip(2, "Test 2", "The Second Snip", "System.out.println(\"Snip #2\");"));
+            System.out.println("Create Snip (2): " + createSnip(2, "Test 2", "Java", "System.out.println(\"Snip #2\");"));
 
             ArrayList<String> tags = new ArrayList<>();
             tags.add("Debug");
             tags.add("Testing");
             tags.add("Tags");
 
-            System.out.println("Create Snip (3): " + createSnip(3, "Test 3", "The Third Snip", tags, "System.out.println(\"Snip #3\");"));
-            System.out.println("Create Snip (4): " + createSnip(4, "Test 4", "The Fourth Snip", tags, "Java", "System.out.println(\"Snip #4\");"));
+            System.out.println("Create Snip (3): " + createSnip(3, "Test 3", tags, "System.out.println(\"Snip #3\");"));
+            System.out.println("Create Snip (4): " + createSnip(4, "Test 4", tags, "Java", "System.out.println(\"Snip #4\");"));
 
             System.out.println("==========");
 
