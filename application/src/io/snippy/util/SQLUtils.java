@@ -728,6 +728,44 @@ public class SQLUtils {
         }
     }
 
+    public static boolean editSnip(int snipId, String title, ArrayList tags, String lang, String code) {
+        connect();
+        try {
+            String query = "UPDATE `snips` SET `Title` = ?,`Tags` = ?,`Lang` = ?,`Code` = ? WHERE `ID` LIKE ?";
+            PreparedStatement stmnt = connection.prepareStatement(query);
+
+            if (title == null) {
+                return false;
+            }
+
+            stmnt.setString(1, title);
+
+            String tgs = null;
+            if (tags != null && tags.size() > 0) {
+                tgs = "";
+                for (int i = 0; i < tags.size(); i++) {
+                    tgs = tags.get(i) + "~";
+                }
+                tgs = tgs.substring(0, tgs.length() - 1);
+            }
+
+            stmnt.setString(2, tgs);
+            stmnt.setString(3, lang);
+
+            if (code == null) {
+                return false;
+            }
+
+            stmnt.setString(4, code);
+            stmnt.setInt(5, snipId);
+            stmnt.execute();
+            return true;
+        } catch (Exception e) {
+            printErr(e);
+            return false;
+        }
+    }
+
     /*done
      * Method: removeSnip
      * Pre: takes in a snipID
@@ -868,8 +906,8 @@ public class SQLUtils {
 
     // ==========================DEBUG STUFF=============================
 
-    private static boolean debug = false;
-    private static boolean print = false;
+    private static boolean debug = true;
+    private static boolean print = true;
 
     /*done
      * Method: println
@@ -971,6 +1009,8 @@ public class SQLUtils {
             tags.add("Tags");
 
             System.out.println("Create Snip (3): " + createSnip(3, "Test 3", tags, "System.out.println(\"Snip #3\");"));
+            System.out.println("Edit Snip (3) (Fail): " + editSnip(3, null, null, null, null));
+            System.out.println("Edit Snip (3) Again: " + editSnip(3, "Test 3 - 2", tags, null, "System.out.println(\"Snip #3 Edited\");"));
             System.out.println("Create Snip (4): " + createSnip(4, "Test 4", tags, "Java", "System.out.println(\"Snip #4\");"));
 
             System.out.println("==========");
