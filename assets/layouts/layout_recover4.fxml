@@ -22,6 +22,7 @@
       <Text fx:id="recover_codeprompt" fontSmoothingType="LCD" layoutX="187.0" layoutY="167.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Last step! Please enter your new password." textAlignment="CENTER" />
       <Label fx:id="login_error1" layoutX="240.0" layoutY="241.0" text="Passwords Must Match" textAlignment="CENTER" textFill="RED" visible="false" />
       <Label fx:id="login_error2" layoutX="234.0" layoutY="241.0" text="Error Changing Password" textAlignment="CENTER" textFill="RED" visible="false" />
+      <Label fx:id="login_error3" layoutX="75" layoutY="241.0" text="Password must contain at least 1 Uppercase, 1 Lowercase, 1 Number, and  6 characters" textAlignment="CENTER" textFill="RED" visible="false"/>
       <JFXButton fx:id="recover_cancel" layoutX="275.0" layoutY="374.0" prefHeight="25.0" prefWidth="50.0" text="cancel" textAlignment="RIGHT" textFill="#444444" />
    </children>
 </Pane>
