@@ -101,7 +101,7 @@ public class MainScene extends StageScene {
 
 	public void displaySideSnips(){
 		snips = (JFXListView< Parent >) lookup( "#base_selections" );
-		for (int i=0; i<50; i++) {
+		for (int i=49; i>=0; i--) {
 			snips.getItems().add(new SnipListData().toNode(userSnips.get(i)));
 		}
 	}
