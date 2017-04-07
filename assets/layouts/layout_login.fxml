@@ -12,7 +12,7 @@
    <children>
       <JFXTextField fx:id="login_email" alignment="CENTER" focusColor="#ff6600" layoutX="233.0" layoutY="163.0" promptText="e m a i l" />
       <JFXPasswordField fx:id="login_password" alignment="CENTER" focusColor="#ff6600" layoutX="233.0" layoutY="188.0" promptText="p a s s w o r d" />
-      <Label fx:id="login_error" layoutX="262.0" layoutY="223.0" text="Incorrect Password" textAlignment="CENTER" textFill="RED" visible="false"/>
+      <Label fx:id="login_error" alignment="CENTER" layoutX="250.0" layoutY="223.0" text="Incorrect Password" textAlignment="CENTER" textFill="RED" visible="false" />
       <JFXButton fx:id="login_submit" layoutX="274.0" layoutY="248.0" style="-fx-background-color: #00ccdd;" text="LOGIN" textFill="WHITE" />
       <Separator layoutX="297.0" layoutY="364.0" orientation="VERTICAL" prefHeight="36.0" prefWidth="6.0" />
       <JFXButton fx:id="login_forgot" layoutX="309.0" layoutY="370.0" text="forgot my password" textFill="#444444" />

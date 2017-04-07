@@ -25,13 +25,13 @@
       <JFXComboBox fx:id="register_question2" focusColor="#ff6600" layoutX="309.0" layoutY="182.0" prefHeight="25.0" prefWidth="135.0" promptText="security question #2" />
       <JFXTextField fx:id="register_answer2" alignment="CENTER" focusColor="#ff6600" layoutX="309.0" layoutY="211.0" promptText="a n s w e r   # 2" />
       <JFXButton fx:id="register_submit" layoutX="266.0" layoutY="280.0" style="-fx-background-color: #00ccdd;" text="REGISTER" textFill="WHITE" />
-      <Label fx:id="register_error1" layoutX="262.0" layoutY="252.0" text="You Must Enter an Email" textAlignment="CENTER" textFill="RED" visible="false"/>
-      <Label fx:id="register_error2" layoutX="262.0" layoutY="252.0" text="You Must Fill out Both Password Fields" textAlignment="CENTER" textFill="RED" visible="false"/>
-      <Label fx:id="register_error3" layoutX="262.0" layoutY="252.0" text="Passwords do not Match" textAlignment="CENTER" textFill="RED" visible="false"/>
-      <Label fx:id="register_error4" layoutX="262.0" layoutY="252.0" text="You Fill out Both Sections of the Security Question" textAlignment="CENTER" textFill="RED" visible="false"/>
-      <Label fx:id="register_error5" layoutX="262.0" layoutY="252.0" text="User Already Exists With That Email" textAlignment="CENTER" textFill="RED" visible="false"/>
-      <Label fx:id="register_error6" layoutX="262.0" layoutY="252.0" text="Unable to Create an Account" textAlignment="CENTER" textFill="RED" visible="false"/>
-       <Label fx:id="register_success" layoutX="262.0" layoutY="252.0" text="Account Created!" textAlignment="CENTER" textFill="GREEN" visible="false"/>
+      <Label fx:id="register_error1" layoutX="236.0" layoutY="252.0" text="You Must Enter an Email" textAlignment="CENTER" textFill="RED" visible="true" />
+      <Label fx:id="register_error2" layoutX="198.0" layoutY="252.0" text="You Must Fill out Both Password Fields" textAlignment="CENTER" textFill="RED" visible="true" />
+      <Label fx:id="register_error3" layoutX="236.0" layoutY="252.0" text="Passwords do not Match" textAlignment="CENTER" textFill="RED" visible="true" />
+      <Label fx:id="register_error4" layoutX="169.0" layoutY="252.0" text="You Fill out Both Sections of the Security Question" textAlignment="CENTER" textFill="RED" visible="true" />
+      <Label fx:id="register_error5" layoutX="210.0" layoutY="252.0" text="User Already Exists With That Email" textAlignment="CENTER" textFill="RED" visible="true" />
+      <Label fx:id="register_error6" layoutX="224.0" layoutY="252.0" text="Unable to Create an Account" textAlignment="CENTER" textFill="RED" visible="true" />
+       <Label fx:id="register_success" layoutX="253.0" layoutY="252.0" text="Account Created!" textAlignment="CENTER" textFill="GREEN" visible="false" />
 
       <JFXButton fx:id="register_cancel" layoutX="274.0" layoutY="374.0" prefHeight="25.0" prefWidth="51.0" text="cancel" textAlignment="RIGHT" textFill="#444444" />
    </children>
