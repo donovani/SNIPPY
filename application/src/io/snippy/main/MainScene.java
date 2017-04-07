@@ -28,6 +28,7 @@ import javafx.stage.Stage;
 import org.pmw.tinylog.Logger;
 import sun.rmi.runtime.Log;
 
+import javax.xml.soap.Text;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -43,11 +44,11 @@ public class MainScene extends StageScene {
     private JFXHamburger menuButton;
     private HamburgerBasicCloseTransition closeTransition;
 
-	private JFXListView<Parent> sideSnips;
+    private JFXListView<Parent> sideSnips;
 
-	private ArrayList<Snip> userSnips = SQLUtils.getUserSnips(LoginScene.currentUser.getUserId());
-	public static Snip displayedSnip;
-	public static Snip selectedSideSnip;
+    private ArrayList<Snip> userSnips = SQLUtils.getUserSnips(LoginScene.currentUser.getUserId());
+    public static Snip displayedSnip;
+    public static Snip selectedSideSnip;
 
     public MainScene(Stage primaryStage) {
         super(primaryStage);
@@ -88,56 +89,21 @@ public class MainScene extends StageScene {
         }
         languageDropdown.getItems().addAll(languageOptions);
 
-		//Creating some dummy snips for testing, will delete later
-		for (int i=0; i<= 100; i++){
-			//userSnips.add(new Snip("Snip"+i, "test", "Python"));
-			//SQLUtils.createSnip(LoginScene.currentUser.getUserId(), "Snip"+i, "Python",  "test");
-		}
-		displayMainSnip();
-		displaySideSnips();
+        //Creating some dummy snips for testing, will delete later
+        for (int i = 0; i <= 100; i++) {
+            //userSnips.add(new Snip("Snip"+i, "test", "Python"));
+            //SQLUtils.createSnip(LoginScene.currentUser.getUserId(), "Snip"+i, "Python",  "test");
+        }
+        displayMainSnip();
+        displaySideSnips();
 
-		//Create a new snip
-		JFXButton newButton = (JFXButton) lookup("#base_new");
-		newButton.setOnAction(event -> createNewSnip());
-
-		//Save an edited snip
-		JFXButton saveButton = (JFXButton) lookup("#main_save");
-		saveButton.setOnAction(event -> editSnip());
-
-		//Select a snip from sidebar
-		sideSnips.setOnMouseClicked(event -> displaySelectedSideSnip());
-
-
-	}
-        setupShare();
+        //Create a new snip
 
         MenuButton share = (MenuButton) this.lookup("#main_share");
+
+        setupShare();
+
         JFXButton newButton = (JFXButton) lookup("#base_new");
-
-	public void displaySelectedSideSnip(){
-		((JFXTextField) lookup("#main_title")).setText(selectedSideSnip.getTitle());
-		((TextArea) lookup("#main_code")).setText(selectedSideSnip.getCodeSnippet());
-		((JFXComboBox) lookup("#main_language")).getSelectionModel().select(selectedSideSnip.getLanguage());
-		int index = sideSnips.getSelectionModel().getSelectedIndex();
-		if (!userSnips.contains(displayedSnip)){
-			System.out.println("test");
-			updateSideSnips(displayedSnip);
-			userSnips.add(displayedSnip);
-		}
-		displayedSnip = selectedSideSnip;
-	}
-
-
-
-	public void displayMainSnip(){
-		displayedSnip = userSnips.get(0);
-		userSnips.remove(0);
-		System.out.println(displayedSnip);
-		((JFXTextField) lookup("#main_title")).setText(displayedSnip.getTitle());
-		((TextArea) lookup("#main_code")).setText(displayedSnip.getCodeSnippet());
-		((JFXComboBox) lookup("#main_language")).getSelectionModel().select(displayedSnip.getLanguage());
-	}
-
         newButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
             @Override
             public void handle(javafx.event.ActionEvent event) {
@@ -146,109 +112,138 @@ public class MainScene extends StageScene {
                 createNewSnip();
             }
         });
+        //Save an edited snip
+        JFXButton saveButton = (JFXButton) lookup("#main_save");
+        saveButton.setOnAction(event -> editSnip());
+
+        //Select a snip from sidebar
+        sideSnips.setOnMouseClicked(event -> displaySelectedSideSnip());
     }
-    /*
-    NEED TO ADD THE FOLLOWING TO THE ON CLICK FOR SIDE BAR SNIPS
-     MenuButton share = (MenuButton) lookup("#main_share");
-     share.setStyle("-fx-background-color: #44aaff");
-     share.setDisable(false);
-     */
 
-	public void displaySideSnips(){
-		sideSnips = (JFXListView< Parent >) lookup( "#base_selections" );
-		for (Snip s : userSnips) {
-			sideSnips.getItems().add(new SnipListData().toNode(s));
-		}
-	}
+    public void displaySelectedSideSnip() {
+        MenuButton share = (MenuButton) lookup("#main_share");
+        share.setStyle("-fx-background-color: #44aaff");
+        share.setDisable(false);
+        
+        ((JFXTextField) lookup("#main_title")).setText(selectedSideSnip.getTitle());
+        ((TextArea) lookup("#main_code")).setText(selectedSideSnip.getCodeSnippet());
+        ((JFXComboBox) lookup("#main_language")).getSelectionModel().select(selectedSideSnip.getLanguage());
+        int index = sideSnips.getSelectionModel().getSelectedIndex();
+        if (!userSnips.contains(displayedSnip)) {
+            System.out.println("test");
+            updateSideSnips(displayedSnip);
+            userSnips.add(displayedSnip);
+        }
+        displayedSnip = selectedSideSnip;
+    }
 
-	public void updateSideSnips(Snip s){
-		sideSnips.getItems().add(0, new SnipListData().toNode(s));
-	}
-
-	public void editSnip(){
-
-		String newTitle = ((JFXTextField) lookup("#main_title")).getText();
-		String newCode = ((TextArea) lookup ("#main_code")).getText();
-		String newLanguage = ((JFXComboBox) lookup("#main_language")).getSelectionModel().getSelectedItem().toString();
-
-		//TODO Implement once we get a SQL function to edit a snip
-
-	}
-
-	public void clearDisplayedSnip(){
-		//Clear title and add prompt text
-		JFXTextField snipTitle = ((JFXTextField) lookup("#main_title"));
-		snipTitle.setText(null);
-		snipTitle.setPromptText("Enter Snip Title");
+    public void displayMainSnip() {
+        displayedSnip = userSnips.get(0);
+        userSnips.remove(0);
+        System.out.println(displayedSnip);
+        ((JFXTextField) lookup("#main_title")).setText(displayedSnip.getTitle());
+        ((TextArea) lookup("#main_code")).setText(displayedSnip.getCodeSnippet());
+        ((JFXComboBox) lookup("#main_language")).getSelectionModel().select(displayedSnip.getLanguage());
+    }
 
     public void displaySideSnips() {
-        snips = (JFXListView<Parent>) lookup("#base_selections");
-        for (int i = 49; i >= 0; i--) {
-            snips.getItems().add(new SnipListData().toNode(userSnips.get(i)));
+        sideSnips = (JFXListView<Parent>) lookup("#base_selections");
+        for (Snip s : userSnips) {
+            sideSnips.getItems().add(new SnipListData().toNode(s));
         }
     }
 
-		//Clear dropdown and add language options
-		JFXComboBox languageDropdown = ((JFXComboBox) lookup("#main_language"));
-		languageDropdown.getSelectionModel().select(0);
-	}
+    public void updateSideSnips(Snip s) {
+        sideSnips.getItems().add(0, new SnipListData().toNode(s));
+    }
 
-	public void createNewSnip() {
+    public void editSnip() {
 
-		clearDisplayedSnip();
-		if (!userSnips.contains(displayedSnip)){
-			updateSideSnips(displayedSnip);
-			userSnips.add(displayedSnip);
-		}
-		JFXButton newButton = (JFXButton) lookup("#base_new");
-		newButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				clearDisplayedSnip();
-			}
-		});
+        String newTitle = ((JFXTextField) lookup("#main_title")).getText();
+        String newCode = ((TextArea) lookup("#main_code")).getText();
+        String newLanguage = ((JFXComboBox) lookup("#main_language")).getSelectionModel().getSelectedItem().toString();
 
-		JFXTextField tagTextbox = (JFXTextField) lookup("#main_addtag");
-		tagTextbox.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			@Override
-			public void handle(KeyEvent event) {
-				if (event.getCode().equals(KeyCode.ENTER)){
-					String tagName = tagTextbox.getText();
-					if(!(tagName != null && !tagName.equals(""))){
-						return;
-					}
-				}
-			}
-		});
+        //TODO Implement once we get a SQL function to edit a snip
 
-		JFXButton saveButton = (JFXButton) lookup("#main_save");
-		saveButton.setOnAction(new EventHandler<ActionEvent>() { // on click
-			@Override
-			public void handle(ActionEvent event) {
+    }
 
+    public void clearDisplayedSnip() {
+        //Clear title and add prompt text
+        JFXTextField snipTitle = ((JFXTextField) lookup("#main_title"));
+        snipTitle.setText(null);
+        snipTitle.setPromptText("Enter Snip Title");
 
-				if(!(snipTitle != null && !snipTitle.equals(""))) {
-					((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(255, 0, 0, 1)");
-					readyToCreate = false;
-				}
-				if (!(snipCode != null && !snipCode.equals(""))) {
-					((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(255, 0, 0, 1)");
-					readyToCreate = false;
-				}
-				if(readyToCreate) {
-					((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
-					((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
-					System.out.println(SQLUtils.createSnip(LoginScene.currentUser.getUserId(), snipTitle, snipCode));
-					displayedSnip = new Snip(snipTitle, snipCode, snipLanguage);
-					
-				}
-			}
-		});
-	}
+        //Clear code area and add prompt test
+        TextArea codeText = ((TextArea) lookup("#main_code"));
+        codeText.setText(null);
+        codeText.setPromptText("Enter your code here.");
+
+        //Clear dropdown and add language options
+        JFXComboBox languageDropdown = ((JFXComboBox) lookup("#main_language"));
+        languageDropdown.getSelectionModel().select(0);
+
+    }
+
+    public void createNewSnip() {
+
+        clearDisplayedSnip();
+
+        if (!userSnips.contains(displayedSnip)) {
+            updateSideSnips(displayedSnip);
+            userSnips.add(displayedSnip);
+        }
+
+        JFXButton newButton = (JFXButton) lookup("#base_new");
+        newButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                clearDisplayedSnip();
+            }
+        });
+
+        JFXTextField tagTextbox = (JFXTextField) lookup("#main_addtag");
+        tagTextbox.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode().equals(KeyCode.ENTER)) {
+                    String tagName = tagTextbox.getText();
+                    if (!(tagName != null && !tagName.equals(""))) {
+                        return;
+                    }
+                }
+            }
+        });
+
+        JFXButton saveButton = (JFXButton) lookup("#main_save");
+        saveButton.setOnAction(new EventHandler<ActionEvent>() { // on click
+            @Override
+            public void handle(ActionEvent event) {
+
+                String snipTitle = ((JFXTextField) lookup("#main_title")).getText();
+                String snipCode = ((TextArea) lookup("#main_code")).getText();
+                String snipLanguage = ((JFXComboBox) lookup("#main_language")).getSelectionModel().getSelectedItem().toString();
+                boolean readyToCreate = true;
+
+                if (!(snipTitle != null && !snipTitle.equals(""))) {
+                    ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(255, 0, 0, 1)");
+                    readyToCreate = false;
+                }
+                if (!(snipCode != null && !snipCode.equals(""))) {
+                    ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(255, 0, 0, 1)");
+                    readyToCreate = false;
+                }
+                if (readyToCreate) {
+                    ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
+                    ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
+                    System.out.println(SQLUtils.createSnip(LoginScene.currentUser.getUserId(), snipTitle, snipCode));
+                    displayedSnip = new Snip(snipTitle, snipCode, snipLanguage);
+
                     MenuButton share = (MenuButton) lookup("#main_share");
                     share.setStyle("-fx-background-color: #44aaff");
                     share.setDisable(false);
-
+                }
+            }
+        });
     }
 
     public void setupShare() {
