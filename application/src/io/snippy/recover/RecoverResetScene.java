@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 import io.snippy.core.StageScene;
 import io.snippy.login.LoginScene;
+import io.snippy.util.PasswordCheck;
 import io.snippy.util.SQLUtils;
 import io.snippy.util.UXUtils;
 import javafx.event.ActionEvent;
@@ -43,18 +44,28 @@ public class RecoverResetScene extends StageScene {
                 if (pass1.equals(pass2)) { //if passwords match
                     lookup("#login_error1").setVisible(false); //hide errors
                     lookup("#login_error2").setVisible(false);
+                    lookup("#login_error3").setVisible(false);
 
-                    boolean changed = SQLUtils.changePass(RecoverEmailScene.username, pass1); //try to change password
+                    PasswordCheck pc = new PasswordCheck();
+                    if (pc.checkPass(pass1)) {
+                        boolean changed = SQLUtils.changePass(RecoverEmailScene.username, pass1); //try to change password
 
-                    if (changed) { //if successful
-                        switchScreen(LoginScene.class);
-                    } else { //else error
+                        if (changed) { //if successful
+                            switchScreen(LoginScene.class);
+                        } else { //else error
+                            lookup("#login_error1").setVisible(false);
+                            lookup("#login_error2").setVisible(true);
+                            lookup("#login_error3").setVisible(false);
+                        }
+                    } else { //error
                         lookup("#login_error1").setVisible(false);
-                        lookup("#login_error2").setVisible(true);
+                        lookup("#login_error2").setVisible(false);
+                        lookup("#login_error3").setVisible(true);
                     }
                 } else {//else error
                     lookup("#login_error1").setVisible(true);
                     lookup("#login_error2").setVisible(false);
+                    lookup("#login_error3").setVisible(false);
                 }
             }
         });

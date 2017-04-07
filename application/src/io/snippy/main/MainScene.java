@@ -82,7 +82,7 @@ public class MainScene extends StageScene {
 		//Creating some dummy snips for testing, will delete later
 		for (int i=0; i<=50; i++){
 			userSnips.add(new Snip("Snip"+i, "test", "Python"));
-			SQLUtils.createSnip(LoginScene.currentUser.getUserId(), "Snip"+i, "Python",  "test");
+			//SQLUtils.createSnip(LoginScene.currentUser.getUserId(), "Snip"+i, "Python",  "test");
 		}
 		displayMainSnip();
 		displaySideSnips();
