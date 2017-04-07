@@ -3,15 +3,27 @@ package io.snippy.main;
 import com.jfoenix.controls.*;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
 import io.snippy.core.R;
+import io.snippy.core.Snip;
 import io.snippy.core.StageScene;
+import io.snippy.login.LoginScene;
+import io.snippy.util.Language;
+import io.snippy.util.SQLUtils;
 import io.snippy.util.UXUtils;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.pmw.tinylog.Logger;
+
+import java.util.ArrayList;
+
+import static io.snippy.util.Language.SQL;
 
 
 /**
@@ -24,6 +36,9 @@ public class MainScene extends StageScene {
 	private HamburgerBasicCloseTransition closeTransition;
 
 	private JFXListView<Parent> snips;
+
+	private ArrayList<Snip> userSnips = new ArrayList<Snip>();
+	private Snip displayedSnip;
 
 	public MainScene( Stage primaryStage ) {
 		super( primaryStage );
@@ -56,11 +71,86 @@ public class MainScene extends StageScene {
 		Logger.info( "Creating deletion dialog for SnipID {}", snipID);
 		deleteButton.setOnAction( event -> DeleteDialog.createAndShow( overlay, snipID ) );
 
-		//Lastly we load the data of the app
-		//TODO: Here's where you load info about snips.
+		//Instantiating the Lnaguage Combobox
+		JFXComboBox languageDropdown = ((JFXComboBox) lookup("#main_language"));
+		ArrayList<String> languageOptions = new ArrayList<String>();
+		for (Language l : Language.values()){
+			languageOptions.add(l.NAME);
+		}
+		languageDropdown.getItems().addAll(languageOptions);
+
+		//Creating some dummy snips for testing, will delete later
+		for (int i=0; i<=50; i++){
+			userSnips.add(new Snip("Snip"+i, "test", "Python"));
+			SQLUtils.createSnip(LoginScene.currentUser.getUserId(), "Snip"+i, "Python",  "test");
+		}
+		displayMainSnip();
+		displaySideSnips();
+
+		JFXButton newButton = (JFXButton) lookup("#base_new");
+		newButton.setOnAction(event -> createNewSnip());
+	}
+
+	public void displayMainSnip(){
+		Snip mostRecentSnip = userSnips.get(userSnips.size()-1);
+		System.out.println(mostRecentSnip.toString());
+		((JFXTextField) lookup("#main_title")).setText(mostRecentSnip.getTitle());
+		((TextArea) lookup("#main_code")).setText(mostRecentSnip.getCodeSnippet());
+		((JFXComboBox) lookup("#main_language")).getSelectionModel().select(mostRecentSnip.getLanguage());
+	}
+
+	public void displaySideSnips(){
 		snips = (JFXListView< Parent >) lookup( "#base_selections" );
-		for (int i=0; i<50; i++)
-			snips.getItems().add(new SnipListData().toNode());
+		for (int i=49; i>=0; i--) {
+			snips.getItems().add(new SnipListData().toNode(userSnips.get(i)));
+		}
+	}
+
+	public void createNewSnip() {
+		//Clear title and add prompt text
+		JFXTextField snipTitle = ((JFXTextField) lookup("#main_title"));
+		snipTitle.setText(null);
+		snipTitle.setPromptText("Enter Snip Title");
+
+		//Clear code area and add prompt text
+		TextArea codeText = ((TextArea) lookup("#main_code"));
+		codeText.setText(null);
+		codeText.setPromptText("Enter your code here.");
+
+		//Clear dropdown and add language options
+		JFXComboBox languageDropdown = ((JFXComboBox) lookup("#main_language"));
+		languageDropdown.getSelectionModel().select(0);
+
+
+		JFXButton saveButton = (JFXButton) lookup("#main_save");
+		saveButton.setOnAction(new EventHandler<ActionEvent>() { // on click
+			@Override
+			public void handle(ActionEvent event) {
+
+				String snipTitle = ((JFXTextField) lookup("#main_title")).getText();
+				String snipCode = ((TextArea) lookup ("#main_code")).getText();
+				String snipLanguage = ((JFXComboBox) lookup("#main_language")).getSelectionModel().getSelectedItem().toString();
+				boolean readyToCreate = true;
+
+				if(!(snipTitle != null && !snipTitle.equals(""))) {
+					((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(255, 0, 0, 1)");
+					readyToCreate = false;
+				}
+				if (!(snipCode != null && !snipCode.equals(""))) {
+					((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(255, 0, 0, 1)");
+					readyToCreate = false;
+				}
+				if(readyToCreate){
+					((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
+					((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
+					System.out.println(SQLUtils.createSnip(LoginScene.currentUser.getUserId(),snipTitle, snipCode));
+					userSnips.add(new Snip(snipTitle, snipCode, snipLanguage));
+
+
+				}
+			}
+		});
+
 	}
 
 	@Override
@@ -68,6 +158,8 @@ public class MainScene extends StageScene {
 
 	}
 }
+
+
 
 class DeleteDialog extends JFXDialog {
 
@@ -97,8 +189,8 @@ class DeleteDialog extends JFXDialog {
 	}
 
 	public static final JFXDialog createAndShow( StackPane sp, String id ) {
-		JFXDialog d = new DeleteDialog( sp, id );
-		d.show( sp );
+		JFXDialog d = new DeleteDialog(sp, id);
+		d.show(sp);
 		return d;
 	}
 }

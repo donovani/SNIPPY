@@ -7,7 +7,7 @@ package io.snippy.util;
  */
 public enum Language {
 	PLAINTEXT("Plaintext"), C("C"), CPP("C++"), CSHARP("C#"), JAVA("Java"),
-	RUBY("Ruby"), JAVASCRIPT("Javascript"), PHP("PHP"), SQL("SQL"),
+	RUBY("Ruby"), JAVASCRIPT("Javascript"), PHP("PHP"), PYTHON("Python"), SQL("SQL"),
 	HTML("HTML"), CSS("CSS"), XML("XML"), YAML("YAML"), JSON("JSON");
 
 	public final String NAME;
