@@ -40,9 +40,9 @@
                               <Font size="18.0" />
                            </font>
                         </Text>
-                        <JFXButton fx:id="base_new" layoutX="447.0" layoutY="11.0" text="NEW" />
-                        <JFXHamburger fx:id="base_menu" layoutX="556.0" layoutY="14.0" />
-                        <JFXButton fx:id="base_teams" layoutX="493.0" layoutY="11.0" text="TEAMS" />
+                        <JFXButton fx:id="base_new" layoutX="627.0" layoutY="11.0" text="NEW" />
+                        <JFXHamburger fx:id="base_menu" layoutX="752.0" layoutY="14.0" />
+                        <JFXButton fx:id="base_teams" layoutX="683.0" layoutY="11.0" text="TEAMS" />
                      </children>
                   </Pane>
                </children>

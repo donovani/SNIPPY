@@ -39,6 +39,7 @@ public class RegisterScene extends StageScene {
 
     @Override
     public void onCreate() {
+        hideErrors();
         JFXButton cancelButton = (JFXButton) lookup("#register_cancel"); //cancel button
         cancelButton.setOnAction(event -> switchScreen(LoginScene.class)); //go to login screen on click
 
