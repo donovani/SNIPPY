@@ -31,6 +31,7 @@
       <Label fx:id="register_error4" layoutX="262.0" layoutY="252.0" text="You Fill out Both Sections of the Security Question" textAlignment="CENTER" textFill="RED" visible="false"/>
       <Label fx:id="register_error5" layoutX="262.0" layoutY="252.0" text="User Already Exists With That Email" textAlignment="CENTER" textFill="RED" visible="false"/>
       <Label fx:id="register_error6" layoutX="262.0" layoutY="252.0" text="Unable to Create an Account" textAlignment="CENTER" textFill="RED" visible="false"/>
+       <Label fx:id="register_error7" layoutX="75" layoutY="252.0" text="Password must contain at least 1 Uppercase, 1 Lowercase, 1 Number, and  6 characters" textAlignment="CENTER" textFill="RED" visible="false"/>
        <Label fx:id="register_success" layoutX="262.0" layoutY="252.0" text="Account Created!" textAlignment="CENTER" textFill="GREEN" visible="false"/>
 
       <JFXButton fx:id="register_cancel" layoutX="274.0" layoutY="374.0" prefHeight="25.0" prefWidth="51.0" text="cancel" textAlignment="RIGHT" textFill="#444444" />
