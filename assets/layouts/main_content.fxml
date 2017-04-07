@@ -15,7 +15,7 @@
          </font>
       </JFXTextField>
       <JFXButton fx:id="main_delete" layoutX="549.0" layoutY="18.0" style="-fx-background-color: #ff0000;" text="DEL" textFill="WHITE" />
-      <JFXButton fx:id="main_share" layoutX="488.0" layoutY="18.0" style="-fx-background-color: #44aaff;" text="SHARE" textFill="WHITE" />
+      <MenuButton fx:id="main_share" layoutX="488.0" layoutY="18.0" style="-fx-background-color: #44aaff;" text="SHARE" textFill="WHITE" />
       <Text fx:id="main_taglabel" layoutX="14.0" layoutY="72.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tags:" />
       <JFXButton fx:id="main_hksetup" layoutX="10.0" layoutY="366.0" text="HOTKEY:" />
       <JFXButton fx:id="main_save" layoutX="546.0" layoutY="365.0" style="-fx-background-color: #00aaaa;" text="SAVE" textFill="WHITE" />

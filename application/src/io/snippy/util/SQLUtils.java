@@ -364,6 +364,13 @@ public class SQLUtils {
                 while (rs.next()) {
                     group = rs.getInt(1);
                 }
+
+                query = "INSERT INTO `groupmembers` (`UserID`,`GroupID`) VALUES (?,?)";
+                stmnt = connection.prepareStatement(query);
+                stmnt.setInt(1, ownerID);
+                stmnt.setInt(2, group);
+                stmnt.execute();
+
                 return group;
             } catch (Exception e) {
                 printErr(e);
@@ -374,6 +381,7 @@ public class SQLUtils {
             return -1;
         }
     }
+
 
     /*done
      * Method: joinGroup
@@ -438,6 +446,31 @@ public class SQLUtils {
         }
     }
 
+    /*done
+     * Method: getUserGroups
+     * Pre: takes in a user id
+     * Post: returns a list of the groups a user is a part of (id|groupname) or null if error
+     */
+    public static ArrayList<String> getUserGroups(int userID) {
+        connect();
+        try {
+            ArrayList<String> groups = new ArrayList<String>();
+            String Query = "SELECT g.* FROM `groups` g, `groupmembers` gm WHERE g.ID = gm.groupID AND gm.userID = ?";
+            PreparedStatement stmnt = connection.prepareStatement(Query);
+            stmnt.setInt(1, userID);
+
+            ResultSet rs = stmnt.executeQuery();
+
+            while (rs.next()) {
+                groups.add(rs.getInt(1) + "|" + rs.getString(2));
+            }
+
+            return groups;
+        } catch (Exception e) {
+            printErr(e);
+            return null;
+        }
+    }
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     /* done
@@ -727,12 +760,28 @@ public class SQLUtils {
     public static boolean shareSnip(int snipId, int groupID) {
         connect();
         try {
-            String query = "INSERT INTO `snipgroups` (`snipID`, `groupID`) VALUES (?,?)";
+            String query = "SELECT * FROM `snipgroups` WHERE snipID = ? AND groupID = ?";
             PreparedStatement stmnt = connection.prepareStatement(query);
             stmnt.setInt(1, snipId);
             stmnt.setInt(2, groupID);
-            stmnt.execute();
-            return true;
+            ResultSet rs = stmnt.executeQuery();
+
+            boolean exists = false;
+            while (rs.next()) {
+                exists = true;
+                break;
+            }
+
+            if (!exists) {
+                query = "INSERT INTO `snipgroups` (`snipID`, `groupID`) VALUES (?,?)";
+                stmnt = connection.prepareStatement(query);
+                stmnt.setInt(1, snipId);
+                stmnt.setInt(2, groupID);
+                stmnt.execute();
+                return true;
+            } else {
+                return false;
+            }
         } catch (Exception e) {
             printErr(e);
             return false;
@@ -939,6 +988,10 @@ public class SQLUtils {
             System.out.println("User 2 Snips: " + getUserSnips(2).get(0).toString());
             System.out.println("User 3 Snips: " + getUserSnips(3).get(0).toString());
             System.out.println("User 4 Snips: " + getUserSnips(4).size());
+
+            System.out.println("==========");
+
+            System.out.println("Groups user 2 is in: " + Arrays.toString(getUserGroups(2).toArray()));
 
             System.out.println("==========");
 

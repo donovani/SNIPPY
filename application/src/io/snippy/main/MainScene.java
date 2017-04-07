@@ -10,17 +10,18 @@ import io.snippy.login.LoginScene;
 import io.snippy.util.Language;
 import io.snippy.util.SQLUtils;
 import io.snippy.util.UXUtils;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.pmw.tinylog.Logger;
+import sun.rmi.runtime.Log;
 
 import java.util.ArrayList;
 
@@ -88,11 +89,14 @@ public class MainScene extends StageScene {
         displayMainSnip();
         displaySideSnips();
 
+        setupShare();
+
+        MenuButton share = (MenuButton) this.lookup("#main_share");
         JFXButton newButton = (JFXButton) lookup("#base_new");
+
         newButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
             @Override
             public void handle(javafx.event.ActionEvent event) {
-                JFXButton share = (JFXButton) lookup("#main_share");
                 share.setStyle("-fx-background-color: #A9A9A9");
                 share.setDisable(true);
                 createNewSnip();
@@ -101,9 +105,9 @@ public class MainScene extends StageScene {
     }
     /*
     NEED TO ADD THE FOLLOWING TO THE ON CLICK FOR SIDE BAR SNIPS
-    JFXButton share = (JFXButton) lookup("#main_share");
-    share.setStyle("-fx-background-color: #44aaff");
-    share.setDisable(true);
+     MenuButton share = (MenuButton) lookup("#main_share");
+     share.setStyle("-fx-background-color: #44aaff");
+     share.setDisable(false);
      */
 
     public void displayMainSnip() {
@@ -161,7 +165,7 @@ public class MainScene extends StageScene {
                     System.out.println(SQLUtils.createSnip(LoginScene.currentUser.getUserId(), snipTitle, snipCode));
                     userSnips.add(new Snip(snipTitle, snipCode, snipLanguage));
 
-                    JFXButton share = (JFXButton) lookup("#main_share");
+                    MenuButton share = (MenuButton) lookup("#main_share");
                     share.setStyle("-fx-background-color: #44aaff");
                     share.setDisable(false);
                 }
@@ -170,15 +174,43 @@ public class MainScene extends StageScene {
 
     }
 
-    public void shareSnip() {
-        if (displayedSnip.getID() != -1) {
+    public void setupShare() {
+        try {
+            MenuButton share = (MenuButton) lookup("#main_share");
+            if (displayedSnip.getID() != -1) {
+                User user = LoginScene.currentUser;
+                ArrayList<String> usersGroups = SQLUtils.getUserGroups(user.getUserId());
 
+                if (usersGroups.size() == 0) {
+                    share.getItems().add(new MenuItem("Do not Share"));
+                } else {
+                    ArrayList<MenuItem> items = new ArrayList<MenuItem>();
+                    share.getItems().add(new MenuItem("Do not Share"));
+                    for (int i = 0; i < usersGroups.size(); i++) {
+                        String tmp = usersGroups.get(i);
+                        MenuItem item = new MenuItem(tmp.substring(tmp.indexOf("|") + 1, tmp.length()));
+                        item.setOnAction(event -> {
+                            share(tmp);
+                        });
+                        items.add(item);
+                    }
+                    share.getItems().addAll(items);
+                }
+            }
+        } catch (Exception e) {
+            MenuButton share = (MenuButton) lookup("#main_share");
+            share.getItems().add(new MenuItem("Do not Share"));
         }
+    }
+
+    public void share(String val) {
+        int id = Integer.parseInt(val.substring(0, val.indexOf("|")));
+
+        SQLUtils.shareSnip(displayedSnip.getID(), id);
     }
 
     @Override
     public void onDispose() {
-
     }
 }
 
