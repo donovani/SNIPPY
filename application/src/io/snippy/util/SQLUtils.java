@@ -1,5 +1,6 @@
 package io.snippy.util;
 
+import io.snippy.core.Snip;
 import sun.dc.pr.PRError;
 
 import java.awt.*;
@@ -442,14 +443,12 @@ public class SQLUtils {
     /* done
      * Method: getUserSnips
      * Pre: takes in the user's id
-     * Post: returns all of the user's snips as a string (` delim) or null if
-     * error
-     * ID`UserID`Title`Tags`Lang`Code
+     * Post: returns all of the user's snips as an arrayList of Snips or null if error
      */
-    public static ArrayList<String> getUserSnips(int userID) {
+    public static ArrayList<Snip> getUserSnips(int userID) {
         connect();
         try {
-            ArrayList<String> snips = new ArrayList<String>();
+            ArrayList<Snip> snips = new ArrayList<Snip>();
 
             String query = "SELECT * FROM `snips` WHERE `userID` like ?";
             PreparedStatement stmnt = connection.prepareStatement(query);
@@ -465,7 +464,11 @@ public class SQLUtils {
                     String lang = rs.getString(5);
                     String code = rs.getString(6);
 
-                    String tmp = id + "`" + uId + "`" + title + "`" + tags + "`" + lang + "`" + code;
+                    String[] tgs = null;
+                    if (tags != null) {
+                        tgs = tags.split("~");
+                    }
+                    Snip tmp = new Snip(id, uId, title, tgs, lang, code);
                     snips.add(tmp);
                 }
 
@@ -483,13 +486,12 @@ public class SQLUtils {
     /* done
      * Method: getUsersLastFiftySnips
      * Pre: takes in the user's id
-     * Post: returns all of the user's last 50 snips as a string (latest to newest) (` delim) or null if error
-     * ID`UserID`Title`Tags`Lang`Code
+     * Post: returns all of the user's last 50 snips as a ArrayList of Snips (latest to newest) (` delim) or null if error
      */
-    public static ArrayList<String> getUsersLastFiftySnips(int userID) {
+    public static ArrayList<Snip> getUsersLastFiftySnips(int userID) {
         connect();
         try {
-            ArrayList<String> snips = new ArrayList<String>();
+            ArrayList<Snip> snips = new ArrayList<Snip>();
 
             String query = "SELECT * FROM `snips` WHERE `userID` like ? ORDER BY `ID` DESC LIMIT 50";
             PreparedStatement stmnt = connection.prepareStatement(query);
@@ -505,7 +507,11 @@ public class SQLUtils {
                     String lang = rs.getString(5);
                     String code = rs.getString(6);
 
-                    String tmp = id + "`" + uId + "`" + title + "`" + tags + "`" + lang + "`" + code;
+                    String[] tgs = null;
+                    if (tags != null) {
+                        tgs = tags.split("~");
+                    }
+                    Snip tmp = new Snip(id, uId, title, tgs, lang, code);
                     snips.add(tmp);
                 }
 
@@ -523,14 +529,12 @@ public class SQLUtils {
     /*done
      * Method: getGroupSnips
      * Pre: takes in a group id
-     * Post: returns all UNIQUE snips part of that group as a string (` delim) or null
-     * if error
-     * ID`UserID`Title`Tags`Lang`Code
+     * Post: returns all UNIQUE snips part of that group as ArrayList of Snips or null if error
      */
-    public static ArrayList<String> getGroupSnips(int userID, int groupID) {
+    public static ArrayList<Snip> getGroupSnips(int userID, int groupID) {
         connect();
         try {
-            ArrayList<String> snips = new ArrayList<String>();
+            ArrayList<Snip> snips = new ArrayList<Snip>();
 
             String query = "SELECT s.* FROM snips s, snipgroups sg, groups g WHERE s.ID = sg.snipID and sg.groupID = g.ID and g.ID = ?";
             PreparedStatement stmnt = connection.prepareStatement(query);
@@ -546,9 +550,13 @@ public class SQLUtils {
                     String lang = rs.getString(5);
                     String code = rs.getString(6);
 
-                    String tmp = id + "`" + uId + "`" + title + "`" + tags + "`" + lang + "`" + code;
                     if (uId == userID) {//Do not add if user's snip
                     } else {
+                        String[] tgs = null;
+                        if (tags != null) {
+                            tgs = tags.split("~");
+                        }
+                        Snip tmp = new Snip(id, uId, title, tgs, lang, code);
                         snips.add(tmp);
                     }
                 }
@@ -927,10 +935,10 @@ public class SQLUtils {
 
             System.out.println("==========");
 
-            System.out.println("User 1's Last 50 Snips: " + Arrays.toString(getUsersLastFiftySnips(1).toArray()));
-            System.out.println("User 2 Snips: " + Arrays.toString(getUserSnips(2).toArray()));
-            System.out.println("User 3 Snips: " + Arrays.toString(getUserSnips(3).toArray()));
-            System.out.println("User 4 Snips: " + Arrays.toString(getUserSnips(4).toArray()));
+            System.out.println("User 1's Last 50 Snips: " + getUsersLastFiftySnips(1).get(0).toString());
+            System.out.println("User 2 Snips: " + getUserSnips(2).get(0).toString());
+            System.out.println("User 3 Snips: " + getUserSnips(3).get(0).toString());
+            System.out.println("User 4 Snips: " + getUserSnips(4).size());
 
             System.out.println("==========");
 

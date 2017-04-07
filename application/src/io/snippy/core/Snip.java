@@ -9,10 +9,11 @@ import java.util.Arrays;
 public class Snip {
 
     private int snipID;
+    private int ownerID;
     private String title;
     private String[] tags;
     private String language;
-   // private String documentation;
+    // private String documentation;
     private String codeSnippet;
     //private Group[] groups; Omitted until groups are implemented
 
@@ -20,6 +21,15 @@ public class Snip {
         this.title = title;
         this.codeSnippet = codeSnippet;
         this.language = language;
+    }
+
+    public Snip(int id, int userID,  String ttle, String[] tgs, String lang, String code) {
+        this.snipID = id;
+        this.ownerID = userID;
+        this.title = ttle;
+        this.tags = tgs;
+        this.language = lang;
+        this.codeSnippet = code;
     }
 
     //Mutators and accessors
