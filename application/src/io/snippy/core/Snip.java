@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 public class Snip {
 
-    private int snipID;
+    private int snipID = -1;
     private int ownerID;
     private String title;
     private String[] tags;
@@ -23,7 +23,7 @@ public class Snip {
         this.language = language;
     }
 
-    public Snip(int id, int userID,  String ttle, String[] tgs, String lang, String code) {
+    public Snip(int id, int userID, String ttle, String[] tgs, String lang, String code) {
         this.snipID = id;
         this.ownerID = userID;
         this.title = ttle;
@@ -33,6 +33,10 @@ public class Snip {
     }
 
     //Mutators and accessors
+    public int getID() {
+        return snipID;
+    }
+
     public String getTitle() {
         return title;
     }
