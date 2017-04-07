@@ -68,7 +68,9 @@ public class Snip {
     @Override
     public String toString() {
         return "Snip{" +
-                "name='" + title + '\'' +
+                "snipID=" + snipID +
+                ", ownerID=" + ownerID +
+                ", title='" + title + '\'' +
                 ", tags=" + Arrays.toString(tags) +
                 ", language='" + language + '\'' +
                 ", codeSnippet='" + codeSnippet + '\'' +

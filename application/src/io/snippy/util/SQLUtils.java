@@ -10,6 +10,7 @@ import java.security.SecureRandom;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 
@@ -476,6 +477,7 @@ public class SQLUtils {
                 printErr(e);
                 return null;
             }
+            Collections.reverse(snips);
             return snips;
         } catch (Exception e) {
             printErr(e);
@@ -488,12 +490,12 @@ public class SQLUtils {
      * Pre: takes in the user's id
      * Post: returns all of the user's last 50 snips as a ArrayList of Snips (latest to newest) (` delim) or null if error
      */
-    public static ArrayList<Snip> getUsersLastFiftySnips(int userID) {
+    public static ArrayList<Snip> getUsersLastFiftyOneSnips(int userID) {
         connect();
         try {
             ArrayList<Snip> snips = new ArrayList<Snip>();
 
-            String query = "SELECT * FROM `snips` WHERE `userID` like ? ORDER BY `ID` DESC LIMIT 50";
+            String query = "SELECT * FROM `snips` WHERE `userID` like ? ORDER BY `ID` DESC LIMIT 51";
             PreparedStatement stmnt = connection.prepareStatement(query);
             stmnt.setInt(1, userID);
             ResultSet rs = stmnt.executeQuery();
@@ -935,7 +937,7 @@ public class SQLUtils {
 
             System.out.println("==========");
 
-            System.out.println("User 1's Last 50 Snips: " + getUsersLastFiftySnips(1).get(0).toString());
+            System.out.println("User 1's Last 51 Snips: " + getUsersLastFiftyOneSnips(1).get(0).toString());
             System.out.println("User 2 Snips: " + getUserSnips(2).get(0).toString());
             System.out.println("User 3 Snips: " + getUserSnips(3).get(0).toString());
             System.out.println("User 4 Snips: " + getUserSnips(4).size());
