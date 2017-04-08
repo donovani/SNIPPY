@@ -13,9 +13,9 @@
             <Font name="System Bold" size="18.0" />
          </font>
       </JFXTextField>
-      <JFXComboBox fx:id="main_language" focusColor="#ff6600" layoutX="401.0" layoutY="18.0" prefHeight="25.0" prefWidth="128.0" promptText="l a n g u a g e" />
-      <JFXButton fx:id="main_share" layoutX="548.0" layoutY="18.0" style="-fx-background-color: #44aaff;" text="SHARE" textFill="WHITE" />
+      <JFXComboBox fx:id="main_language" focusColor="#ff6600" layoutX="401.0" layoutY="18.0" prefHeight="25.0" prefWidth="128.0" promptText="" />
       <JFXButton fx:id="main_delete" layoutX="619.0" layoutY="18.0" style="-fx-background-color: #ff0000;" text="DEL" textFill="WHITE" />
+      <MenuButton fx:id="main_share" layoutX="540.0" layoutY="18.0" style="-fx-background-color: #44aaff;" text="SHARE" textFill="WHITE" />
       <Text fx:id="main_taglabel" layoutX="14.0" layoutY="72.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tags:" />
       <Pane fx:id="main_taglist" layoutX="51.0" layoutY="55.0" prefHeight="25.0" prefWidth="606.0" style="-fx-background-color: #f8f8f8;">
          <children>
