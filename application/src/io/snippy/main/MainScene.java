@@ -2,10 +2,7 @@ package io.snippy.main;
 
 import com.jfoenix.controls.*;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
-import io.snippy.core.R;
-import io.snippy.core.Snip;
-import io.snippy.core.StageScene;
-import io.snippy.core.User;
+import io.snippy.core.*;
 import io.snippy.login.LoginScene;
 import io.snippy.util.Language;
 import io.snippy.util.SQLUtils;
@@ -31,9 +28,6 @@ import sun.rmi.runtime.Log;
 import javax.xml.soap.Text;
 import java.util.ArrayList;
 import java.util.Collections;
-
-import static io.snippy.util.Language.SQL;
-
 
 /**
  * The root scene for most of SNIPPY.
@@ -116,6 +110,10 @@ public class MainScene extends StageScene {
         //Select a snip from sidebar
         sideSnips.setOnMouseClicked(event -> displaySelectedSideSnip());
     }
+
+    public void getGroupSnips() {
+		ArrayList<Group> userGroups = SQLUtils.getUserGroups(LoginScene.currentUser.getUserId());
+	}
 
     public void displaySelectedSideSnip() {
         MenuButton share = (MenuButton) lookup("#main_share");
@@ -250,7 +248,7 @@ public class MainScene extends StageScene {
             MenuButton share = (MenuButton) lookup("#main_share");
             if (displayedSnip.getID() != -1) {
                 User user = LoginScene.currentUser;
-                ArrayList<String> usersGroups = SQLUtils.getUserGroups(user.getUserId());
+                ArrayList<Group> usersGroups = SQLUtils.getUserGroups(user.getUserId());
 
                 if (usersGroups.size() == 0) {
                     share.getItems().add(new MenuItem("Do not Share"));
@@ -258,8 +256,8 @@ public class MainScene extends StageScene {
                     ArrayList<MenuItem> items = new ArrayList<MenuItem>();
                     share.getItems().add(new MenuItem("Do not Share"));
                     for (int i = 0; i < usersGroups.size(); i++) {
-                        String tmp = usersGroups.get(i);
-                        MenuItem item = new MenuItem(tmp.substring(tmp.indexOf("|") + 1, tmp.length()));
+                        String tmp = usersGroups.get(i).getName();
+                        MenuItem item = new MenuItem(tmp);
                         item.setOnAction(event -> {
                             share(tmp);
                         });

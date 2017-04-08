@@ -1,5 +1,6 @@
 package io.snippy.util;
 
+import io.snippy.core.Group;
 import io.snippy.core.Snip;
 import sun.dc.pr.PRError;
 
@@ -452,18 +453,17 @@ public class SQLUtils {
      * Pre: takes in a user id
      * Post: returns a list of the groups a user is a part of (id|groupname) or null if error
      */
-    public static ArrayList<String> getUserGroups(int userID) {
+    public static ArrayList<Group> getUserGroups(int userID) {
         connect();
         try {
-            ArrayList<String> groups = new ArrayList<String>();
+            ArrayList<Group> groups = new ArrayList<Group>();
             String Query = "SELECT g.* FROM `groups` g, `groupmembers` gm WHERE g.ID = gm.groupID AND gm.userID = ?";
             PreparedStatement stmnt = connection.prepareStatement(Query);
             stmnt.setInt(1, userID);
 
             ResultSet rs = stmnt.executeQuery();
-
             while (rs.next()) {
-                groups.add(rs.getInt(1) + "|" + rs.getString(2));
+                groups.add(new Group(rs.getInt(1), rs.getString(2)));
             }
 
             return groups;
