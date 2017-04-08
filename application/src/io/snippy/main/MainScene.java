@@ -42,9 +42,10 @@ public class MainScene extends StageScene {
 
     private JFXListView<Parent> sideSnips;
 
-    private ArrayList<Snip> userSnips;
+    public  ArrayList<Snip> userSnips;
     public static Snip displayedSnip;
     public static Snip selectedSideSnip;
+    public static boolean searching = false;
 
     public MainScene(Stage primaryStage) {
         super(primaryStage);
@@ -95,6 +96,21 @@ public class MainScene extends StageScene {
         displayMainSnip();
         displaySideSnips();
 
+        //Searching
+		JFXTextField searchBar = (JFXTextField) lookup("#base_searchbar");
+		searchBar.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(KeyEvent event) {
+				if (event.getCode().equals(KeyCode.ENTER)) {
+					searchSnips(searchBar);
+				}
+			}
+		});
+
+		JFXButton clearSearch = (JFXButton) lookup("#base_searchclear");
+		clearSearch.setOnAction(event -> clearSearch());
+
+
         //Create a new snip
         MenuButton share = (MenuButton) this.lookup("#main_share");
         setupShare();
@@ -125,6 +141,28 @@ public class MainScene extends StageScene {
 		}
 	}
 
+	public void clearSearch() {
+        if (userSnips.size()>=2 && searching) {
+            searching = false;
+            sideSnips.getItems().clear();
+            displaySideSnips();
+        }
+        JFXTextField searchBar = (JFXTextField) lookup("#base_searchbar");
+        searchBar.clear();
+
+	}
+
+	public void searchSnips(JFXTextField searchBar){
+        searching = true;
+    	String search = searchBar.getText();
+    	ArrayList<Snip> searchedSnips = new ArrayList<Snip>();
+    	for (Snip s: userSnips){
+    		if (s.getTitle().contains(search)){
+    			searchedSnips.add(s);
+			}
+		}
+        updateSideSnips(searchedSnips);
+	}
 
     public void displaySelectedSideSnip() {
         MenuButton share = (MenuButton) lookup("#main_share");
@@ -145,7 +183,6 @@ public class MainScene extends StageScene {
     public void displayMainSnip() {
     	if (userSnips.size() != 0) {
 			displayedSnip = userSnips.get(0);
-			userSnips.remove(0);
 			((JFXTextField) lookup("#main_title")).setText(displayedSnip.getTitle());
 			((TextArea) lookup("#main_code")).setText(displayedSnip.getCodeSnippet());
 			((JFXComboBox) lookup("#main_language")).getSelectionModel().select(displayedSnip.getLanguage());
@@ -166,30 +203,52 @@ public class MainScene extends StageScene {
         sideSnips.getItems().add(0, new SnipListData().toNode(s));
     }
 
+    public void updateSideSnips(ArrayList<Snip> snips){
+        sideSnips.getItems().clear();
+        for (Snip s : snips) {
+            sideSnips.getItems().add(new SnipListData().toNode(s));
+        }
+    }
+
     public void editSnip() {
+        JFXButton newButton = (JFXButton) lookup("#base_new");
+        newButton.setOnAction(event -> createNewSnip());
+        if (displayedSnip == null){
+            return;
+        }
 
 		String newTitle = ((JFXTextField) lookup("#main_title")).getText();
 		String newCode = ((TextArea) lookup("#main_code")).getText();
 		String newLanguage = ((JFXComboBox) lookup("#main_language")).getSelectionModel().getSelectedItem().toString();
+		boolean readyToEdit = true;
 
-		if (!newTitle.equals(displayedSnip.getTitle()) || !newCode.equals(displayedSnip.getCodeSnippet()) || !newLanguage.equals(displayedSnip.getLanguage())){
-			System.out.println("editing");
-			displayedSnip.setTitle(newTitle);
+        if (!(newTitle != null && !newTitle.equals(""))) {
+            ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(255, 0, 0, 1)");
+            readyToEdit = false;
+        }
+        if (!(newCode != null && !newCode.equals(""))) {
+            ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(255, 0, 0, 1)");
+            readyToEdit = false;
+        }
+
+		if ((!newTitle.equals(displayedSnip.getTitle()) || !newCode.equals(displayedSnip.getCodeSnippet()) || !newLanguage.equals(displayedSnip.getLanguage())) && readyToEdit){
+            ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
+            ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
+		    displayedSnip.setTitle(newTitle);
 			displayedSnip.setLanguage(newLanguage);
 			displayedSnip.setCodeSnippet(newCode);
 			SQLUtils.editSnip(displayedSnip.getID(), newTitle, null, newLanguage, newCode);
 		}
-		else{
-			System.out.println("not editing");
-		}
+
 
 	}
 
     public void clearDisplayedSnip() {
 
 		if (!userSnips.contains(displayedSnip) && (userSnips.size()!=0 || displayedSnip != null)) {
-			System.out.println("test");
-			updateSideSnips(displayedSnip);
+			if (!searching){
+			    updateSideSnips(displayedSnip);
+            }
 			userSnips.add(displayedSnip);
 		}
         //Clear title and add prompt text
@@ -215,7 +274,9 @@ public class MainScene extends StageScene {
         newButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                clearDisplayedSnip();
+                ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
+                ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
+                createNewSnip();
             }
         });
 
