@@ -2,6 +2,7 @@ package io.snippy.main;
 
 import com.jfoenix.controls.*;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
+import com.sun.deploy.util.ArrayUtil;
 import io.snippy.core.*;
 import io.snippy.login.LoginScene;
 import io.snippy.util.Language;
@@ -27,6 +28,7 @@ import sun.rmi.runtime.Log;
 
 import javax.xml.soap.Text;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 
 /**
@@ -40,7 +42,7 @@ public class MainScene extends StageScene {
 
     private JFXListView<Parent> sideSnips;
 
-    private ArrayList<Snip> userSnips = SQLUtils.getUserSnips(LoginScene.currentUser.getUserId());
+    private ArrayList<Snip> userSnips;
     public static Snip displayedSnip;
     public static Snip selectedSideSnip;
 
@@ -88,6 +90,8 @@ public class MainScene extends StageScene {
             //userSnips.add(new Snip("Snip"+i, "test", "Python"));
             //SQLUtils.createSnip(LoginScene.currentUser.getUserId(), "Snip"+i, "Python",  "test");
         }
+
+		getUserSnips();
         displayMainSnip();
         displaySideSnips();
 
@@ -110,10 +114,17 @@ public class MainScene extends StageScene {
         //Select a snip from sidebar
         sideSnips.setOnMouseClicked(event -> displaySelectedSideSnip());
     }
-
-    public void getGroupSnips() {
+	/*
+		Gets all snips created by the user first. Then ads the snips of the groups they are in.
+	 */
+    public void getUserSnips(){
+		userSnips = SQLUtils.getUserSnips(LoginScene.currentUser.getUserId());
 		ArrayList<Group> userGroups = SQLUtils.getUserGroups(LoginScene.currentUser.getUserId());
+		for (Group g : userGroups){
+			userSnips.addAll(SQLUtils.getGroupSnips(LoginScene.currentUser.getUserId(), g.getGroupID()));
+		}
 	}
+
 
     public void displaySelectedSideSnip() {
         MenuButton share = (MenuButton) lookup("#main_share");
@@ -157,13 +168,22 @@ public class MainScene extends StageScene {
 
     public void editSnip() {
 
-        String newTitle = ((JFXTextField) lookup("#main_title")).getText();
-        String newCode = ((TextArea) lookup("#main_code")).getText();
-        String newLanguage = ((JFXComboBox) lookup("#main_language")).getSelectionModel().getSelectedItem().toString();
+		String newTitle = ((JFXTextField) lookup("#main_title")).getText();
+		String newCode = ((TextArea) lookup("#main_code")).getText();
+		String newLanguage = ((JFXComboBox) lookup("#main_language")).getSelectionModel().getSelectedItem().toString();
 
-        //TODO Implement once we get a SQL function to edit a snip
+		if (!newTitle.equals(displayedSnip.getTitle()) || !newCode.equals(displayedSnip.getCodeSnippet()) || !newLanguage.equals(displayedSnip.getLanguage())){
+			System.out.println("editing");
+			displayedSnip.setTitle(newTitle);
+			displayedSnip.setLanguage(newLanguage);
+			displayedSnip.setCodeSnippet(newCode);
+			SQLUtils.editSnip(displayedSnip.getID(), newTitle, null, newLanguage, newCode);
+		}
+		else{
+			System.out.println("not editing");
+		}
 
-    }
+	}
 
     public void clearDisplayedSnip() {
 
