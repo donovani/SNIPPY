@@ -498,9 +498,9 @@ public class SQLUtils {
                     String lang = rs.getString(5);
                     String code = rs.getString(6);
 
-                    String[] tgs = null;
+                    ArrayList<String> tgs = new ArrayList<String>();
                     if (tags != null) {
-                        tgs = tags.split("~");
+                        tgs = new ArrayList<String>(Arrays.asList(tags.split("~")));
                     }
                     Snip tmp = new Snip(id, uId, title, tgs, lang, code);
                     snips.add(tmp);
@@ -511,49 +511,6 @@ public class SQLUtils {
                 return null;
             }
             Collections.reverse(snips);
-            return snips;
-        } catch (Exception e) {
-            printErr(e);
-            return null;
-        }
-    }
-
-    /* done
-     * Method: getUsersLastFiftySnips
-     * Pre: takes in the user's id
-     * Post: returns all of the user's last 50 snips as a ArrayList of Snips (latest to newest) (` delim) or null if error
-     */
-    public static ArrayList<Snip> getUsersLastFiftyOneSnips(int userID) {
-        connect();
-        try {
-            ArrayList<Snip> snips = new ArrayList<Snip>();
-
-            String query = "SELECT * FROM `snips` WHERE `userID` like ? ORDER BY `ID` DESC LIMIT 51";
-            PreparedStatement stmnt = connection.prepareStatement(query);
-            stmnt.setInt(1, userID);
-            ResultSet rs = stmnt.executeQuery();
-
-            try {
-                while (rs.next()) {
-                    int id = rs.getInt(1);
-                    int uId = rs.getInt(2);
-                    String title = rs.getString(3);
-                    String tags = rs.getString(4);
-                    String lang = rs.getString(5);
-                    String code = rs.getString(6);
-
-                    String[] tgs = null;
-                    if (tags != null) {
-                        tgs = tags.split("~");
-                    }
-                    Snip tmp = new Snip(id, uId, title, tgs, lang, code);
-                    snips.add(tmp);
-                }
-
-            } catch (Exception e) {
-                printErr(e);
-                return null;
-            }
             return snips;
         } catch (Exception e) {
             printErr(e);
@@ -587,9 +544,9 @@ public class SQLUtils {
 
                     if (uId == userID) {//Do not add if user's snip
                     } else {
-                        String[] tgs = null;
+                        ArrayList<String> tgs = new ArrayList<String>();
                         if (tags != null) {
-                            tgs = tags.split("~");
+                            tgs = new ArrayList<String>(Arrays.asList(tags.split("~")));
                         }
                         Snip tmp = new Snip(id, uId, title, tgs, lang, code);
                         snips.add(tmp);
@@ -698,11 +655,15 @@ public class SQLUtils {
     }
 
     public static int createSnip(int userID, String title, ArrayList<String> tags, String lang, String code) {
+        System.out.println("Tags before split: "+tags);
         String tgs = "";
-        for (int i = 0; i < tags.size(); i++) {
-            tgs = tags.get(i) + "~";
+        if (tags.size()!=0) {
+            for (int i = 0; i < tags.size(); i++) {
+                tgs = tgs + tags.get(i) + "~";
+            }
+            tgs = tgs.substring(0, tgs.length() - 1);
+            System.out.println("SQL Tags: "+tgs);
         }
-        tgs = tgs.substring(0, tgs.length() - 1);
 
         connect();
         try {
@@ -1026,7 +987,6 @@ public class SQLUtils {
 
             System.out.println("==========");
 
-            System.out.println("User 1's Last 51 Snips: " + getUsersLastFiftyOneSnips(1).get(0).toString());
             System.out.println("User 2 Snips: " + getUserSnips(2).get(0).toString());
             System.out.println("User 3 Snips: " + getUserSnips(3).get(0).toString());
             System.out.println("User 4 Snips: " + getUserSnips(4).size());
