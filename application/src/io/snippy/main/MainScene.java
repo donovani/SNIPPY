@@ -1,11 +1,10 @@
 package io.snippy.main;
 
 import com.jfoenix.controls.*;
+import com.jfoenix.controls.events.JFXDialogEvent;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
-import io.snippy.core.R;
-import io.snippy.core.Snip;
-import io.snippy.core.StageScene;
-import io.snippy.core.User;
+import com.sun.deploy.util.ArrayUtil;
+import io.snippy.core.*;
 import io.snippy.login.LoginScene;
 import io.snippy.util.Language;
 import io.snippy.util.SQLUtils;
@@ -15,32 +14,43 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.pmw.tinylog.Logger;
+import sun.applet.Main;
 import sun.rmi.runtime.Log;
 
+import javax.swing.text.html.HTML;
+import javax.xml.soap.Text;
 import java.util.ArrayList;
-
-import static io.snippy.util.Language.SQL;
-
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * The root scene for most of SNIPPY.
  * Created by Ian on 2/18/2017.
  */
 public class MainScene extends StageScene {
+    private MainScene scene;
 
     private JFXHamburger menuButton;
     private HamburgerBasicCloseTransition closeTransition;
 
-    private JFXListView<Parent> snips;
+    private JFXListView<Parent> sideSnips;
 
-    private ArrayList<Snip> userSnips = new ArrayList<Snip>();
-    private Snip displayedSnip;
+    public ArrayList<Snip> userSnips;
+    public static Snip displayedSnip;
+    public static Snip selectedSideSnip;
+    public static String tagToDelete;
+    public static boolean searching = false;
 
     public MainScene(Stage primaryStage) {
         super(primaryStage);
@@ -53,6 +63,8 @@ public class MainScene extends StageScene {
 
     @Override
     public void onCreate() {
+        scene = this;
+
         //First we want to load the rest of the main scene
         Pane contentRoot = (Pane) lookup("#base_content");
         contentRoot.getChildren().add(UXUtils.inflate("assets/layouts/main_content.fxml"));
@@ -68,10 +80,6 @@ public class MainScene extends StageScene {
 
         //Now we setup events for dialogs
         StackPane overlay = (StackPane) this.lookup("#base_stack");
-        JFXButton deleteButton = (JFXButton) this.lookup("#main_delete");
-        String snipID = "<snip uuid goes here>";
-        Logger.info("Creating deletion dialog for SnipID {}", snipID);
-        deleteButton.setOnAction(event -> DeleteDialog.createAndShow(overlay, snipID));
 
         //Instantiating the Language Combobox
         JFXComboBox languageDropdown = ((JFXComboBox) lookup("#main_language"));
@@ -81,57 +89,241 @@ public class MainScene extends StageScene {
         }
         languageDropdown.getItems().addAll(languageOptions);
 
-		//Creating some dummy snips for testing, will delete later
-		for (int i=0; i<=50; i++){
-			userSnips.add(new Snip("Snip"+i, "test", "Python"));
-			//SQLUtils.createSnip(LoginScene.currentUser.getUserId(), "Snip"+i, "Python",  "test");
-		}
-		displayMainSnip();
-		displaySideSnips();
+        JFXButton deleteButton = (JFXButton) this.lookup("#main_delete");
+        deleteButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
+            @Override
+            public void handle(javafx.event.ActionEvent event) {
+                JFXDialog temp = DeleteDialog.createAndShow(scene, overlay, displayedSnip.getID());
+            }
+        });
 
+        //Searching
+        JFXTextField searchBar = (JFXTextField) lookup("#base_searchbar");
+        searchBar.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode().equals(KeyCode.ENTER)) {
+                    searchSnips(searchBar);
+                }
+            }
+        });
+        JFXButton clearSearch = (JFXButton) lookup("#base_searchclear");
+        clearSearch.setOnAction(event -> clearSearch());
+
+        //Setup sharing
         setupShare();
 
-        MenuButton share = (MenuButton) this.lookup("#main_share");
+        //Create a new snip
         JFXButton newButton = (JFXButton) lookup("#base_new");
-
         newButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
             @Override
             public void handle(javafx.event.ActionEvent event) {
-                share.setStyle("-fx-background-color: #A9A9A9");
-                share.setDisable(true);
                 createNewSnip();
             }
         });
+        //Save an edited snip
+        JFXButton saveButton = (JFXButton) lookup("#main_save");
+        saveButton.setOnAction(event -> editSnip());
+
+        //show all snips
+        update();
+
+        //Select a snip from sidebar
+        sideSnips.setOnMouseClicked(event -> displaySelectedSideSnip());
     }
+
+    public void update() {
+        clearDisplayedSnip();
+        getUserSnips();
+        displayMainSnip();
+        displaySideSnips();
+    }
+
     /*
-    NEED TO ADD THE FOLLOWING TO THE ON CLICK FOR SIDE BAR SNIPS
-     MenuButton share = (MenuButton) lookup("#main_share");
-     share.setStyle("-fx-background-color: #44aaff");
-     share.setDisable(false);
+        Gets all snips created by the user first. Then ads the snips of the groups they are in.
      */
+    private void getUserSnips() {
+        if (userSnips != null && userSnips.size() > 0) {
+            userSnips.clear();
+        }
 
-    public void displayMainSnip() {
-        Snip mostRecentSnip = userSnips.get(userSnips.size() - 1);
-        System.out.println(mostRecentSnip.toString());
-        ((JFXTextField) lookup("#main_title")).setText(mostRecentSnip.getTitle());
-        ((TextArea) lookup("#main_code")).setText(mostRecentSnip.getCodeSnippet());
-        ((JFXComboBox) lookup("#main_language")).getSelectionModel().select(mostRecentSnip.getLanguage());
-    }
-
-    public void displaySideSnips() {
-        snips = (JFXListView<Parent>) lookup("#base_selections");
-        for (int i = 49; i >= 0; i--) {
-            snips.getItems().add(new SnipListData().toNode(userSnips.get(i)));
+        userSnips = SQLUtils.getUserSnips(LoginScene.currentUser.getUserId());
+        ArrayList<Group> userGroups = SQLUtils.getUserGroups(LoginScene.currentUser.getUserId());
+        for (Group g : userGroups) {
+            userSnips.addAll(SQLUtils.getGroupSnips(LoginScene.currentUser.getUserId(), g.getGroupID()));
         }
     }
 
-    public void createNewSnip() {
+    private void clearSearch() {
+        if (userSnips.size() >= 2 && searching) {
+            searching = false;
+            sideSnips.getItems().clear();
+            displaySideSnips();
+        }
+        JFXTextField searchBar = (JFXTextField) lookup("#base_searchbar");
+        searchBar.clear();
+    }
+
+    private void searchSnips(JFXTextField searchBar) {
+        searching = true;
+        String search = searchBar.getText();
+        ArrayList<Snip> searchedSnips = new ArrayList<Snip>();
+        for (Snip s : userSnips) {
+            if (s.getTitle().contains(search)) {
+                searchedSnips.add(s);
+            }
+        }
+        updateSideSnips(searchedSnips);
+    }
+
+    private void displaySelectedSideSnip() {
+        clearDisplayedSnip();
+        enableShareDel();
+        MenuButton share = (MenuButton) lookup("#main_share");
+        share.setStyle("-fx-background-color: #44aaff");
+        share.setDisable(false);
+
+        ((JFXTextField) lookup("#main_title")).setText(selectedSideSnip.getTitle());
+        ((TextArea) lookup("#main_code")).setText(selectedSideSnip.getCodeSnippet());
+        ((JFXComboBox) lookup("#main_language")).getSelectionModel().select(selectedSideSnip.getLanguage());
+        int index = sideSnips.getSelectionModel().getSelectedIndex();
+        if (!userSnips.contains(displayedSnip) && (userSnips.size() != 0 || displayedSnip != null)) {
+            updateSideSnips(displayedSnip);
+            userSnips.add(displayedSnip);
+        }
+        if (displayedSnip.getTags()!=null) {
+            Pane tagList = (Pane) lookup("#main_taglist");
+            for (String tag : displayedSnip.getTags()) {
+                tagList.getChildren().add(new TagListData().toNode(tag));
+            }
+        }
+        displayedSnip = selectedSideSnip;
+    }
+
+    private void displayMainSnip() {
+        if (userSnips != null && userSnips.size() != 0) {
+            displayedSnip = userSnips.get(0);
+            ((JFXTextField) lookup("#main_title")).setText(displayedSnip.getTitle());
+            ((TextArea) lookup("#main_code")).setText(displayedSnip.getCodeSnippet());
+            ((JFXComboBox) lookup("#main_language")).getSelectionModel().select(displayedSnip.getLanguage());
+            Pane tagList = (Pane) lookup("#main_taglist");
+            if (displayedSnip.getTags()!=null) {
+                for (String tag : displayedSnip.getTags()) {
+                    tagList.getChildren().add(new TagListData().toNode(tag));
+                }
+            }
+        } else {
+            displayedSnip = null;
+            JFXButton newButton = (JFXButton) lookup("#base_new");
+            createNewSnip();
+        }
+    }
+
+    private void displaySideSnips() {
+        sideSnips = (JFXListView<Parent>) lookup("#base_selections");
+        sideSnips.getItems().clear();
+        for (Snip s : userSnips) {
+            sideSnips.getItems().add(new SnipListData().toNode(s));
+        }
+    }
+
+    private void updateSideSnips(Snip s) {
+        sideSnips.getItems().add(0, new SnipListData().toNode(s));
+    }
+
+    private void updateSideSnips(ArrayList<Snip> snips) {
+        sideSnips.getItems().clear();
+        for (Snip s : snips) {
+            sideSnips.getItems().add(new SnipListData().toNode(s));
+        }
+    }
+
+    private void editSnip() {
+        ArrayList<String> tags = displayedSnip.getTags();
+
+        JFXButton newButton = (JFXButton) lookup("#base_new");
+        newButton.setOnAction(event -> createNewSnip());
+        if (displayedSnip == null) {
+            return;
+        }
+
+        String newTitle = ((JFXTextField) lookup("#main_title")).getText();
+        String newCode = ((TextArea) lookup("#main_code")).getText();
+        String newLanguage = ((JFXComboBox) lookup("#main_language")).getSelectionModel().getSelectedItem().toString();
+
+        boolean readyToEdit = true;
+
+        JFXTextField tagTextBox = (JFXTextField) lookup("#main_addtag");
+        tagTextBox.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode().equals(KeyCode.ENTER)) {
+                    String tagName = tagTextBox.getText();
+                    if (!(tagName != null && !tagName.equals("")) || tags.contains(tagName)) {
+                        return;
+                    }
+                    tagTextBox.clear();
+                    Pane tagList = (Pane) lookup("#main_taglist");
+                    //System.out.println(tagList.getChildren().toString());
+                    tags.add(tagName);
+
+                    Parent node = new TagListData().toNode(tagName);
+                    node.setLayoutX(node.getLayoutX() + offset);
+
+                    //TODO: FIND BETTER OFFSET
+                    offset = offset + (node.toString().length() * 1.25) + 3;
+
+                    tagList.getChildren().add(node);
+                    System.out.println(tags);
+                    tagList.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent event) {
+                            tags.remove(tagToDelete);
+                            tagList.getChildren().remove(tagToDelete);
+                        }
+                    });
+                }
+            }
+        });
+
+        if (!(newTitle != null && !newTitle.equals(""))) {
+            ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(255, 0, 0, 1)");
+            readyToEdit = false;
+        }
+        if (!(newCode != null && !newCode.equals(""))) {
+            ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(255, 0, 0, 1)");
+            readyToEdit = false;
+        }
+
+        if ((!newTitle.equals(displayedSnip.getTitle()) || !newCode.equals(displayedSnip.getCodeSnippet()) || !newLanguage.equals(displayedSnip.getLanguage()) || !tags.equals(displayedSnip.getTags())) && readyToEdit) {
+            ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
+            ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
+            displayedSnip.setTitle(newTitle);
+            displayedSnip.setLanguage(newLanguage);
+            displayedSnip.setCodeSnippet(newCode);
+            SQLUtils.editSnip(displayedSnip.getID(), newTitle, tags, newLanguage, newCode);
+        }
+
+        update();
+    }
+
+    public void clearDisplayedSnip() {
+        if (userSnips != null) {
+            if (!userSnips.contains(displayedSnip) && (userSnips.size() != 0 || displayedSnip != null)) {
+                if (!searching) {
+                    updateSideSnips(displayedSnip);
+                }
+                userSnips.add(displayedSnip);
+            }
+        }
         //Clear title and add prompt text
         JFXTextField snipTitle = ((JFXTextField) lookup("#main_title"));
         snipTitle.setText(null);
         snipTitle.setPromptText("Enter Snip Title");
 
-        //Clear code area and add prompt text
+        //Clear tags
+
+        //Clear code area and add prompt test
         TextArea codeText = ((TextArea) lookup("#main_code"));
         codeText.setText(null);
         codeText.setPromptText("Enter your code here.");
@@ -140,12 +332,71 @@ public class MainScene extends StageScene {
         JFXComboBox languageDropdown = ((JFXComboBox) lookup("#main_language"));
         languageDropdown.getSelectionModel().select(0);
 
+        //Clear tag textbox and list
+        JFXTextField tagTextbox = (JFXTextField) lookup("#main_addtag");
+        tagTextbox.clear();
+        Pane tagList = (Pane) lookup("#main_taglist");
+        for (int i=1; i<tagList.getChildren().size();){
+            tagList.getChildren().remove(i);
+        }
+    }
+
+    private double offset = 0;
+
+    private void createNewSnip() {
+        offset = 0;
+        ArrayList<String> tags = new ArrayList<String>();
+        System.out.println(tags);
+        disableShareDel();
+        clearDisplayedSnip();
+
+        JFXButton newButton = (JFXButton) lookup("#base_new");
+        newButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
+                ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
+                createNewSnip();
+            }
+        });
+
+        JFXTextField tagTextBox = (JFXTextField) lookup("#main_addtag");
+        tagTextBox.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode().equals(KeyCode.ENTER)) {
+                    String tagName = tagTextBox.getText();
+                    if (!(tagName != null && !tagName.equals("")) || tags.contains(tagName)) {
+                        return;
+                    }
+                    tagTextBox.clear();
+                    Pane tagList = (Pane) lookup("#main_taglist");
+                    //System.out.println(tagList.getChildren().toString());
+                    tags.add(tagName);
+
+                    Parent node = new TagListData().toNode(tagName);
+                    node.setLayoutX(node.getLayoutX() + offset);
+
+                    //TODO: FIND BETTER OFFSET
+                    offset = offset + (node.toString().length() * 1.25) + 3;
+
+                    tagList.getChildren().add(node);
+                    System.out.println(tags);
+                    tagList.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent event) {
+                            tags.remove(tagToDelete);
+                            tagList.getChildren().remove(tagToDelete);
+                        }
+                    });
+                }
+            }
+        });
 
         JFXButton saveButton = (JFXButton) lookup("#main_save");
         saveButton.setOnAction(new EventHandler<ActionEvent>() { // on click
             @Override
             public void handle(ActionEvent event) {
-
                 String snipTitle = ((JFXTextField) lookup("#main_title")).getText();
                 String snipCode = ((TextArea) lookup("#main_code")).getText();
                 String snipLanguage = ((JFXComboBox) lookup("#main_language")).getSelectionModel().getSelectedItem().toString();
@@ -162,24 +413,26 @@ public class MainScene extends StageScene {
                 if (readyToCreate) {
                     ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
                     ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
-                    System.out.println(SQLUtils.createSnip(LoginScene.currentUser.getUserId(), snipTitle, snipCode));
-                    userSnips.add(new Snip(snipTitle, snipCode, snipLanguage));
-
+                    int snipID = SQLUtils.createSnip(LoginScene.currentUser.getUserId(), snipTitle, tags, snipLanguage, snipCode);
+                    displayedSnip = new Snip(snipID, LoginScene.currentUser.getUserId(), snipTitle, tags, snipLanguage, snipCode);
+                    System.out.println(displayedSnip);
                     MenuButton share = (MenuButton) lookup("#main_share");
                     share.setStyle("-fx-background-color: #44aaff");
                     share.setDisable(false);
+                    saveButton.setOnAction(edit -> editSnip());
+                    enableShareDel();
+                    update();
                 }
             }
         });
-
     }
 
-    public void setupShare() {
+    private void setupShare() {
         try {
             MenuButton share = (MenuButton) lookup("#main_share");
             if (displayedSnip.getID() != -1) {
                 User user = LoginScene.currentUser;
-                ArrayList<String> usersGroups = SQLUtils.getUserGroups(user.getUserId());
+                ArrayList<Group> usersGroups = SQLUtils.getUserGroups(user.getUserId());
 
                 if (usersGroups.size() == 0) {
                     share.getItems().add(new MenuItem("Do not Share"));
@@ -187,10 +440,11 @@ public class MainScene extends StageScene {
                     ArrayList<MenuItem> items = new ArrayList<MenuItem>();
                     share.getItems().add(new MenuItem("Do not Share"));
                     for (int i = 0; i < usersGroups.size(); i++) {
-                        String tmp = usersGroups.get(i);
-                        MenuItem item = new MenuItem(tmp.substring(tmp.indexOf("|") + 1, tmp.length()));
+                        String tmp = usersGroups.get(i).getName();
+                        MenuItem item = new MenuItem(tmp);
+                        int id = usersGroups.get(i).getGroupID();
                         item.setOnAction(event -> {
-                            share(tmp);
+                            share(id);
                         });
                         items.add(item);
                     }
@@ -203,10 +457,24 @@ public class MainScene extends StageScene {
         }
     }
 
-    public void share(String val) {
-        int id = Integer.parseInt(val.substring(0, val.indexOf("|")));
-
+    private void share(int id) {
         SQLUtils.shareSnip(displayedSnip.getID(), id);
+    }
+
+    private void enableShareDel() {
+        JFXButton del = (JFXButton) lookup("#main_delete");
+        MenuButton share = (MenuButton) lookup("#main_share");
+
+        del.setDisable(false);
+        share.setDisable(false);
+    }
+
+    private void disableShareDel() {
+        JFXButton del = (JFXButton) lookup("#main_delete");
+        MenuButton share = (MenuButton) lookup("#main_share");
+
+        del.setDisable(true);
+        share.setDisable(true);
     }
 
     @Override
@@ -216,16 +484,18 @@ public class MainScene extends StageScene {
 
 
 class DeleteDialog extends JFXDialog {
-
+    private static JFXDialog dialog;
+    private final MainScene scene;
     private final StackPane stackPane;
-    private final String snipID;
+    private final int snipID;
     private JFXDialogLayout layout;
     private JFXButton cancelButton, confirmButton;
 
-    private DeleteDialog(StackPane stackPane, String snipID) {
+    private DeleteDialog(MainScene scene, StackPane stackPane, int snipID) {
         this.stackPane = stackPane;
         this.snipID = snipID;
         this.layout = new JFXDialogLayout();
+        this.scene = scene;
         create();
     }
 
@@ -238,12 +508,31 @@ class DeleteDialog extends JFXDialog {
         layout.setBody(new Label(R.strings("delete.body")));
         layout.setActions(cancelButton, confirmButton);
 
+        cancelButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
+            @Override
+            public void handle(javafx.event.ActionEvent event) {
+                dialog.close();
+            }
+        });
+
+        confirmButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
+            @Override
+            public void handle(javafx.event.ActionEvent event) {
+                SQLUtils.removeSnip(snipID);
+                dialog.close();
+                scene.clearDisplayedSnip();
+                scene.update();
+            }
+        });
+
         this.setTransitionType(DialogTransition.CENTER);
         this.setContent(layout);
     }
 
-    public static final JFXDialog createAndShow(StackPane sp, String id) {
-        JFXDialog d = new DeleteDialog(sp, id);
+    public static final JFXDialog createAndShow(MainScene s, StackPane sp, int id) {
+        JFXDialog d = new DeleteDialog(s, sp, id);
+        dialog = d;
+
         d.show(sp);
         return d;
     }
