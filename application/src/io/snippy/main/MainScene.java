@@ -176,6 +176,7 @@ public class MainScene extends StageScene {
     }
 
     private void displaySelectedSideSnip() {
+        clearDisplayedSnip();
         enableShareDel();
         MenuButton share = (MenuButton) lookup("#main_share");
         share.setStyle("-fx-background-color: #44aaff");
@@ -189,6 +190,12 @@ public class MainScene extends StageScene {
             updateSideSnips(displayedSnip);
             userSnips.add(displayedSnip);
         }
+        if (displayedSnip.getTags()!=null) {
+            Pane tagList = (Pane) lookup("#main_taglist");
+            for (String tag : displayedSnip.getTags()) {
+                tagList.getChildren().add(new TagListData().toNode(tag));
+            }
+        }
         displayedSnip = selectedSideSnip;
     }
 
@@ -198,6 +205,12 @@ public class MainScene extends StageScene {
             ((JFXTextField) lookup("#main_title")).setText(displayedSnip.getTitle());
             ((TextArea) lookup("#main_code")).setText(displayedSnip.getCodeSnippet());
             ((JFXComboBox) lookup("#main_language")).getSelectionModel().select(displayedSnip.getLanguage());
+            Pane tagList = (Pane) lookup("#main_taglist");
+            if (displayedSnip.getTags()!=null) {
+                for (String tag : displayedSnip.getTags()) {
+                    tagList.getChildren().add(new TagListData().toNode(tag));
+                }
+            }
         } else {
             displayedSnip = null;
             JFXButton newButton = (JFXButton) lookup("#base_new");
@@ -225,6 +238,8 @@ public class MainScene extends StageScene {
     }
 
     private void editSnip() {
+        ArrayList<String> tags = displayedSnip.getTags();
+
         JFXButton newButton = (JFXButton) lookup("#base_new");
         newButton.setOnAction(event -> createNewSnip());
         if (displayedSnip == null) {
@@ -234,7 +249,41 @@ public class MainScene extends StageScene {
         String newTitle = ((JFXTextField) lookup("#main_title")).getText();
         String newCode = ((TextArea) lookup("#main_code")).getText();
         String newLanguage = ((JFXComboBox) lookup("#main_language")).getSelectionModel().getSelectedItem().toString();
+
         boolean readyToEdit = true;
+
+        JFXTextField tagTextBox = (JFXTextField) lookup("#main_addtag");
+        tagTextBox.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode().equals(KeyCode.ENTER)) {
+                    String tagName = tagTextBox.getText();
+                    if (!(tagName != null && !tagName.equals("")) || tags.contains(tagName)) {
+                        return;
+                    }
+                    tagTextBox.clear();
+                    Pane tagList = (Pane) lookup("#main_taglist");
+                    //System.out.println(tagList.getChildren().toString());
+                    tags.add(tagName);
+
+                    Parent node = new TagListData().toNode(tagName);
+                    node.setLayoutX(node.getLayoutX() + offset);
+
+                    //TODO: FIND BETTER OFFSET
+                    offset = offset + (node.toString().length() * 1.25) + 3;
+
+                    tagList.getChildren().add(node);
+                    System.out.println(tags);
+                    tagList.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent event) {
+                            tags.remove(tagToDelete);
+                            tagList.getChildren().remove(tagToDelete);
+                        }
+                    });
+                }
+            }
+        });
 
         if (!(newTitle != null && !newTitle.equals(""))) {
             ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(255, 0, 0, 1)");
@@ -245,13 +294,13 @@ public class MainScene extends StageScene {
             readyToEdit = false;
         }
 
-        if ((!newTitle.equals(displayedSnip.getTitle()) || !newCode.equals(displayedSnip.getCodeSnippet()) || !newLanguage.equals(displayedSnip.getLanguage())) && readyToEdit) {
+        if ((!newTitle.equals(displayedSnip.getTitle()) || !newCode.equals(displayedSnip.getCodeSnippet()) || !newLanguage.equals(displayedSnip.getLanguage()) || !tags.equals(displayedSnip.getTags())) && readyToEdit) {
             ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
             ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
             displayedSnip.setTitle(newTitle);
             displayedSnip.setLanguage(newLanguage);
             displayedSnip.setCodeSnippet(newCode);
-            SQLUtils.editSnip(displayedSnip.getID(), newTitle, null, newLanguage, newCode);
+            SQLUtils.editSnip(displayedSnip.getID(), newTitle, tags, newLanguage, newCode);
         }
 
         update();
@@ -281,6 +330,14 @@ public class MainScene extends StageScene {
         //Clear dropdown and add language options
         JFXComboBox languageDropdown = ((JFXComboBox) lookup("#main_language"));
         languageDropdown.getSelectionModel().select(0);
+
+        //Clear tag textbox and list
+        JFXTextField tagTextbox = (JFXTextField) lookup("#main_addtag");
+        tagTextbox.clear();
+        Pane tagList = (Pane) lookup("#main_taglist");
+        for (int i=1; i<tagList.getChildren().size();){
+            tagList.getChildren().remove(i);
+        }
     }
 
     private double offset = 0;
@@ -288,6 +345,7 @@ public class MainScene extends StageScene {
     private void createNewSnip() {
         offset = 0;
         ArrayList<String> tags = new ArrayList<String>();
+        System.out.println(tags);
         disableShareDel();
         clearDisplayedSnip();
 
@@ -301,16 +359,16 @@ public class MainScene extends StageScene {
             }
         });
 
-        JFXTextField tagTextbox = (JFXTextField) lookup("#main_addtag");
-        tagTextbox.setOnKeyPressed(new EventHandler<KeyEvent>() {
+        JFXTextField tagTextBox = (JFXTextField) lookup("#main_addtag");
+        tagTextBox.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
                 if (event.getCode().equals(KeyCode.ENTER)) {
-                    String tagName = tagTextbox.getText();
-                    if (!(tagName != null && !tagName.equals(""))) {
+                    String tagName = tagTextBox.getText();
+                    if (!(tagName != null && !tagName.equals("")) || tags.contains(tagName)) {
                         return;
                     }
-                    tagTextbox.clear();
+                    tagTextBox.clear();
                     Pane tagList = (Pane) lookup("#main_taglist");
                     //System.out.println(tagList.getChildren().toString());
                     tags.add(tagName);
@@ -328,10 +386,8 @@ public class MainScene extends StageScene {
                         public void handle(MouseEvent event) {
                             tags.remove(tagToDelete);
                             tagList.getChildren().remove(tagToDelete);
-                            System.out.println(tags);
                         }
                     });
-
                 }
             }
         });
@@ -356,13 +412,12 @@ public class MainScene extends StageScene {
                 if (readyToCreate) {
                     ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
                     ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
-                    SQLUtils.createSnip(LoginScene.currentUser.getUserId(), snipTitle, snipLanguage, snipCode);
-                    displayedSnip = new Snip(snipTitle, snipCode, snipLanguage);
+                    SQLUtils.createSnip(LoginScene.currentUser.getUserId(), snipTitle, tags, snipLanguage, snipCode);
+                    displayedSnip = new Snip(snipTitle, snipCode, snipLanguage, tags);
                     MenuButton share = (MenuButton) lookup("#main_share");
                     share.setStyle("-fx-background-color: #44aaff");
                     share.setDisable(false);
                     saveButton.setOnAction(edit -> editSnip());
-
                     enableShareDel();
                     update();
                 }
