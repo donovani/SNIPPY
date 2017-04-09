@@ -656,10 +656,12 @@ public class SQLUtils {
 
     public static int createSnip(int userID, String title, ArrayList<String> tags, String lang, String code) {
         String tgs = "";
-        for (int i = 0; i < tags.size(); i++) {
-            tgs = tags.get(i) + "~";
+        if (tags.size()!=0) {
+            for (int i = 0; i < tags.size(); i++) {
+                tgs = tags.get(i) + "~";
+            }
+            tgs = tgs.substring(0, tgs.length() - 1);
         }
-        tgs = tgs.substring(0, tgs.length() - 1);
 
         connect();
         try {
