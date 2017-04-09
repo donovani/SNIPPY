@@ -133,6 +133,7 @@ public class MainScene extends StageScene {
     }
 
     public void update() {
+        clearDisplayedSnip();
         getUserSnips();
         displayMainSnip();
         displaySideSnips();
