@@ -6,7 +6,9 @@ package io.snippy.core;
 public class Group {
 
     private String name;
+    private String joinCode;
     private int groupID;
+    private int owner;
 
     public Group(int groupID, String name){
         this.groupID = groupID;
@@ -17,8 +19,16 @@ public class Group {
         return name;
     }
 
+    public String getCode(){
+        return joinCode;
+    }
+
     public int getGroupID(){
         return groupID;
+    }
+
+    public int getOwner(){
+        return owner;
     }
 
 }

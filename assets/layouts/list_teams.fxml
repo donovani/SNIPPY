@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Text fx:id="team_name" fontSmoothingType="LCD" layoutX="10.0" layoutY="17.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Team Name" wrappingWidth="393.705078125">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Text>
+      <JFXButton fx:id="team_leave" layoutX="422.0" layoutY="-3.0" text="LEAVE" textAlignment="RIGHT" textFill="#03a9f4">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </JFXButton>
+      <JFXButton fx:id="team_disband" layoutX="412.0" layoutY="-3.0" text="DISBAND" textAlignment="RIGHT" textFill="#ee294c">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </JFXButton>
+   </children>
+</Pane>
