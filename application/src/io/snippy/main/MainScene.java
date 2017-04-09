@@ -28,6 +28,7 @@ import org.pmw.tinylog.Logger;
 import sun.applet.Main;
 import sun.rmi.runtime.Log;
 
+import javax.swing.text.html.HTML;
 import javax.xml.soap.Text;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,6 +49,7 @@ public class MainScene extends StageScene {
     public ArrayList<Snip> userSnips;
     public static Snip displayedSnip;
     public static Snip selectedSideSnip;
+    public static String tagToDelete;
     public static boolean searching = false;
 
     public MainScene(Stage primaryStage) {
@@ -105,7 +107,6 @@ public class MainScene extends StageScene {
                 }
             }
         });
-
         JFXButton clearSearch = (JFXButton) lookup("#base_searchclear");
         clearSearch.setOnAction(event -> clearSearch());
 
@@ -281,6 +282,7 @@ public class MainScene extends StageScene {
     }
 
     private void createNewSnip() {
+        ArrayList<String> tags = new ArrayList<String>();
         disableShareDel();
         clearDisplayedSnip();
 
@@ -303,6 +305,20 @@ public class MainScene extends StageScene {
                     if (!(tagName != null && !tagName.equals(""))) {
                         return;
                     }
+                    tagTextbox.clear();
+                    Pane tagList = (Pane) lookup("#main_taglist");
+                    //System.out.println(tagList.getChildren().toString());
+                    tags.add(tagName);
+                    tagList.getChildren().add(new TagListData().toNode(tagName));
+                    System.out.println(tags);
+                    tagList.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent event) {
+                            tags.remove(tagToDelete);
+                            System.out.println(tags);
+                        }
+                    });
+
                 }
             }
         });

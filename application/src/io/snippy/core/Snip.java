@@ -1,5 +1,6 @@
 package io.snippy.core;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -11,7 +12,7 @@ public class Snip {
     private int snipID = -1;
     private int ownerID;
     private String title;
-    private String[] tags;
+    private ArrayList<String> tags;
     private String language;
     // private String documentation;
     private String codeSnippet;
@@ -27,7 +28,7 @@ public class Snip {
         this.snipID = id;
         this.ownerID = userID;
         this.title = ttle;
-        this.tags = tgs;
+        this.tags = tags;
         this.language = lang;
         this.codeSnippet = code;
     }
@@ -45,13 +46,30 @@ public class Snip {
         this.title = name;
     }
 
-    public String[] getTags() {
+    public ArrayList<String> getTags() {
         return tags;
     }
 
-    public void setTags(String[] tags) {
+    public void setTags(ArrayList<String> tags) {
         this.tags = tags;
     }
+
+    public boolean addTag(String tag){
+        if (tags.contains(tag)){
+            return false;
+        }
+        tags.add(tag);
+        return true;
+    }
+    public void removeTag(String tag){
+        for (String t: tags){
+            if (t.equals(tag)){
+                tags.remove(t);
+            }
+        }
+    }
+
+
 
     public String getLanguage() {
         return language;
@@ -75,7 +93,7 @@ public class Snip {
                 "snipID=" + snipID +
                 ", ownerID=" + ownerID +
                 ", title='" + title + '\'' +
-                ", tags=" + Arrays.toString(tags) +
+                ", tags=" +tags.toString() +
                 ", language='" + language + '\'' +
                 ", codeSnippet='" + codeSnippet + '\'' +
                 '}';
