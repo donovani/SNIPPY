@@ -271,6 +271,8 @@ public class MainScene extends StageScene {
         snipTitle.setText(null);
         snipTitle.setPromptText("Enter Snip Title");
 
+        //Clear tags
+
         //Clear code area and add prompt test
         TextArea codeText = ((TextArea) lookup("#main_code"));
         codeText.setText(null);
@@ -281,7 +283,10 @@ public class MainScene extends StageScene {
         languageDropdown.getSelectionModel().select(0);
     }
 
+    private double offset = 0;
+
     private void createNewSnip() {
+        offset = 0;
         ArrayList<String> tags = new ArrayList<String>();
         disableShareDel();
         clearDisplayedSnip();
@@ -309,12 +314,20 @@ public class MainScene extends StageScene {
                     Pane tagList = (Pane) lookup("#main_taglist");
                     //System.out.println(tagList.getChildren().toString());
                     tags.add(tagName);
-                    tagList.getChildren().add(new TagListData().toNode(tagName));
+
+                    Parent node = new TagListData().toNode(tagName);
+                    node.setLayoutX(node.getLayoutX() + offset);
+
+                    //TODO: FIND BETTER OFFSET
+                    offset = offset + (node.toString().length() * 1.25) + 3;
+
+                    tagList.getChildren().add(node);
                     System.out.println(tags);
                     tagList.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent event) {
                             tags.remove(tagToDelete);
+                            tagList.getChildren().remove(tagToDelete);
                             System.out.println(tags);
                         }
                     });
