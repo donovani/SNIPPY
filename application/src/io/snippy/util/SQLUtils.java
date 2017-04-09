@@ -655,12 +655,14 @@ public class SQLUtils {
     }
 
     public static int createSnip(int userID, String title, ArrayList<String> tags, String lang, String code) {
+        System.out.println("Tags before split: "+tags);
         String tgs = "";
         if (tags.size()!=0) {
             for (int i = 0; i < tags.size(); i++) {
-                tgs = tags.get(i) + "~";
+                tgs = tgs + tags.get(i) + "~";
             }
             tgs = tgs.substring(0, tgs.length() - 1);
+            System.out.println("SQL Tags: "+tgs);
         }
 
         connect();

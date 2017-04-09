@@ -413,8 +413,9 @@ public class MainScene extends StageScene {
                 if (readyToCreate) {
                     ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
                     ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
-                    SQLUtils.createSnip(LoginScene.currentUser.getUserId(), snipTitle, tags, snipLanguage, snipCode);
-                    displayedSnip = new Snip(snipTitle, snipCode, snipLanguage, tags);
+                    int snipID = SQLUtils.createSnip(LoginScene.currentUser.getUserId(), snipTitle, tags, snipLanguage, snipCode);
+                    displayedSnip = new Snip(snipID, LoginScene.currentUser.getUserId(), snipTitle, tags, snipLanguage, snipCode);
+                    System.out.println(displayedSnip);
                     MenuButton share = (MenuButton) lookup("#main_share");
                     share.setStyle("-fx-background-color: #44aaff");
                     share.setDisable(false);
