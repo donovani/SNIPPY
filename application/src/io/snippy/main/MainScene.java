@@ -10,6 +10,7 @@ import io.snippy.util.UXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
@@ -85,15 +86,16 @@ public class MainScene extends StageScene {
             }
         });
 
-        //FIXME, change main_share to a JFXButton if you want the fancy dialog
-        /*JFXButton shareButton = (JFXButton) this.lookup( "#main_share");
+        //TODO, change main_share to a JFXButton if you want the fancy dialog (works well now, just for future)
+        /*
+        JFXButton shareButton = (JFXButton) this.lookup( "#main_share");
         shareButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
             @Override
             public void handle(javafx.event.ActionEvent event) {
                 JFXDialog temp = ShareDialog.createAndShow(scene, overlay);
             }
-        });*/
-
+        });
+*/
         JFXButton deleteButton = (JFXButton) this.lookup("#main_delete");
         deleteButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
             @Override
@@ -126,6 +128,7 @@ public class MainScene extends StageScene {
                 createNewSnip();
             }
         });
+
         //Save an edited snip
         JFXButton saveButton = (JFXButton) lookup("#main_save");
         saveButton.setOnAction(event -> editSnip());
@@ -136,6 +139,7 @@ public class MainScene extends StageScene {
         //Select a snip from sidebar
         sideSnips.setOnMouseClicked(event -> displaySelectedSideSnip());
     }
+
     /*
         This method updates the main screen and the side bar. Used primarily to reset the screen.
      */
@@ -147,7 +151,7 @@ public class MainScene extends StageScene {
     }
 
     /*
-        Gets all snips created by the user first. Then ads the snips of the groups they are in.
+      Gets all snips created by the user first. Then ads the snips of the groups they are in.
      */
     private void getUserSnips() {
         if (userSnips != null && userSnips.size() > 0) {
@@ -162,9 +166,8 @@ public class MainScene extends StageScene {
     }
 
     /*
-        Clears the search bar and displays all snips
+      Clears the search bar and displays all snips
      */
-
     private void clearSearch() {
         if (userSnips.size() >= 2 && searching) {
             searching = false;
@@ -176,12 +179,11 @@ public class MainScene extends StageScene {
     }
 
     /*
-        Searches through all snips that the user has access to and displays any snips matching the search term.\
-        - Searches can match snip titles or sub strings within a snip title.
-        - Searches can match tag names
-        - Searches can match languages
+      Searches through all snips that the user has access to and displays any snips matching the search term.\
+      - Searches can match snip titles or sub strings within a snip title.
+      - Searches can match tag names
+      - Searches can match languages
      */
-
     private void searchSnips(JFXTextField searchBar) {
         searching = true;
         String search = searchBar.getText();
@@ -195,9 +197,8 @@ public class MainScene extends StageScene {
     }
 
     /*
-        Clears the currently displayed snip and then displays the snip that has been selected in the side bar.
+      Clears the currently displayed snip and then displays the snip that has been selected in the side bar.
      */
-
     private void displaySelectedSideSnip() {
         clearDisplayedSnip();
         enableShareDel();
@@ -213,7 +214,7 @@ public class MainScene extends StageScene {
             updateSideSnips(displayedSnip);
             userSnips.add(displayedSnip);
         }
-        if (selectedSideSnip.getTags()!=null) {
+        if (selectedSideSnip.getTags() != null) {
             Pane tagList = (Pane) lookup("#main_taglist");
             for (String tag : selectedSideSnip.getTags()) {
                 tagList.getChildren().add(new TagListData().toNode(tag));
@@ -223,10 +224,9 @@ public class MainScene extends StageScene {
     }
 
     /*
-       Called on display of new snip. This displays the newest snip that belongs to a user. If the user does not have any snips
-       created yet it will display the create new snip page.
+      Called on display of new snip. This displays the newest snip that belongs to a user. If the user does not have any snips
+      created yet it will display the create new snip page.
      */
-
     private void displayMainSnip() {
         if (userSnips != null && userSnips.size() != 0) {
             displayedSnip = userSnips.get(0);
@@ -236,7 +236,7 @@ public class MainScene extends StageScene {
             Pane tagList = (Pane) lookup("#main_taglist");
             JFXTextField tagTextBox = (JFXTextField) lookup("#main_addtag");
             tagTextBox.clear();
-            if (displayedSnip.getTags()!=null) {
+            if (displayedSnip.getTags() != null) {
                 for (String tag : displayedSnip.getTags()) {
                     tagList.getChildren().add(new TagListData().toNode(tag));
                 }
@@ -250,9 +250,8 @@ public class MainScene extends StageScene {
     }
 
     /*
-        This method will display all of the user snips along the side bar.
+      This method will display all of the user snips along the side bar.
      */
-
     private void displaySideSnips() {
         sideSnips = (JFXListView<Parent>) lookup("#base_selections");
         sideSnips.getItems().clear();
@@ -262,15 +261,14 @@ public class MainScene extends StageScene {
     }
 
     /*
-        This method adds the given Snip *s* to the top of the side bar display. This is supposed to be the most recently created snip.
+      This method adds the given Snip *s* to the top of the side bar display. This is supposed to be the most recently created snip.
      */
-
     private void updateSideSnips(Snip s) {
         sideSnips.getItems().add(0, new SnipListData().toNode(s));
     }
 
     /*
-        This method clears the currently displayed sidebar and displays the side snip with the passed *snips* ArrayList.
+      This method clears the currently displayed sidebar and displays the side snip with the passed *snips* ArrayList.
      */
     private void updateSideSnips(ArrayList<Snip> snips) {
         sideSnips.getItems().clear();
@@ -280,11 +278,10 @@ public class MainScene extends StageScene {
     }
 
     /*
-        This method handles editing an already created snip.
-        - The method will make sure that the snips title and code is not empty before saving.
-        - This method will update everything at once so only 1 DB call is needed.
+      This method handles editing an already created snip.
+      - The method will make sure that the snips title and code is not empty before saving.
+      - This method will update everything at once so only 1 DB call is needed.
      */
-
     private void editSnip() {
         System.out.println("editing");
         ArrayList<String> tags = displayedSnip.getTags();
@@ -358,9 +355,8 @@ public class MainScene extends StageScene {
     }
 
     /*
-        This method handles clearing the currently displayed snip. It will clear all textfields, dropdowns and tags.
+      This method handles clearing the currently displayed snip. It will clear all textfields, dropdowns and tags.
      */
-
     public void clearDisplayedSnip() {
         if (userSnips != null) {
             if (!userSnips.contains(displayedSnip) && (userSnips.size() != 0 || displayedSnip != null)) {
@@ -390,7 +386,7 @@ public class MainScene extends StageScene {
         JFXTextField tagTextbox = (JFXTextField) lookup("#main_addtag");
         tagTextbox.setText("");
         Pane tagList = (Pane) lookup("#main_taglist");
-        for (int i=1; i<tagList.getChildren().size();){
+        for (int i = 1; i < tagList.getChildren().size(); ) {
             tagList.getChildren().remove(i);
         }
     }
@@ -398,11 +394,10 @@ public class MainScene extends StageScene {
     private double offset = 0;
 
     /*
-        This method handles creating a new snip.
-        - Snip title and snip code is required to create a new snip, all other fields are optional.
-        - Appropriate error messages are displayed for empty fields that are required.
+      This method handles creating a new snip.
+      - Snip title and snip code is required to create a new snip, all other fields are optional.
+      - Appropriate error messages are displayed for empty fields that are required.
      */
-
     private void createNewSnip() {
         System.out.println("creating");
         offset = 0;
@@ -488,40 +483,58 @@ public class MainScene extends StageScene {
         });
     }
 
+    /*done
+     * Method: setupShare()
+     * Pre: takes in no value
+     * Post: fills in the share button with groups the user is a part of
+     */
     private void setupShare() {
         try {
-            MenuButton share = (MenuButton) lookup("#main_share");
-            if (displayedSnip.getID() != -1) {
-                User user = LoginScene.currentUser;
-                ArrayList<Group> usersGroups = SQLUtils.getUserGroups(user.getUserId());
+            MenuButton share = (MenuButton) lookup("#main_share"); //grab the share button
+            if (displayedSnip.getID() != -1) { //if there is a displayed snip
+                User user = LoginScene.currentUser; //grab the current user
+                ArrayList<Group> usersGroups = SQLUtils.getUserGroups(user.getUserId()); //get an arraylist of all the user's groups
 
-                if (usersGroups.size() == 0) {
+                if (usersGroups.size() == 0) { //if the user doesnt have any
                     share.getItems().add(new MenuItem("Do not Share"));
                 } else {
                     ArrayList<MenuItem> items = new ArrayList<MenuItem>();
                     share.getItems().add(new MenuItem("Do not Share"));
-                    for (int i = 0; i < usersGroups.size(); i++) {
+
+                    for (int i = 0; i < usersGroups.size(); i++) {// loop through user groups
+
                         String tmp = usersGroups.get(i).getName();
                         MenuItem item = new MenuItem(tmp);
                         int id = usersGroups.get(i).getGroupID();
+
                         item.setOnAction(event -> {
                             share(id);
-                        });
-                        items.add(item);
+                        }); //set a handler to share on click
+                        items.add(item); //add to the group list
                     }
-                    share.getItems().addAll(items);
+                    share.getItems().addAll(items);// add all to the menubutton
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception e) { //user has no groups
             MenuButton share = (MenuButton) lookup("#main_share");
-            share.getItems().add(new MenuItem("Do not Share"));
+            share.getItems().add(new MenuItem("Do not Share")); //set to default
         }
     }
 
+    /*done
+     * Method: share
+     * Pre: takes in a groupID
+     * Post: shares the displayed snip with the groupID
+     */
     private void share(int id) {
         SQLUtils.shareSnip(displayedSnip.getID(), id);
     }
 
+    /*done
+     * Method: enableShareDel
+     * Pre: takes in nothing
+     * Post: enables the share and del buttons
+     */
     private void enableShareDel() {
         JFXButton del = (JFXButton) lookup("#main_delete");
         MenuButton share = (MenuButton) lookup("#main_share");
@@ -530,6 +543,11 @@ public class MainScene extends StageScene {
         share.setDisable(false);
     }
 
+    /*done
+     * Method: disableShareDel
+     * Pre: takes in nothing
+     * Post: disables the share and del buttons
+     */
     private void disableShareDel() {
         JFXButton del = (JFXButton) lookup("#main_delete");
         MenuButton share = (MenuButton) lookup("#main_share");
