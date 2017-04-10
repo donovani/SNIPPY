@@ -707,7 +707,7 @@ public class SQLUtils {
             if (tags != null && tags.size() > 0) {
                 tgs = "";
                 for (int i = 0; i < tags.size(); i++) {
-                    tgs = tags.get(i) + "~";
+                    tgs = tgs + tags.get(i) + "~";
                 }
                 tgs = tgs.substring(0, tgs.length() - 1);
             }

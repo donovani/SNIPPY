@@ -136,7 +136,9 @@ public class MainScene extends StageScene {
         //Select a snip from sidebar
         sideSnips.setOnMouseClicked(event -> displaySelectedSideSnip());
     }
-
+    /*
+        This method updates the main screen and the side bar. Used primarily to reset the screen.
+     */
     public void update() {
         clearDisplayedSnip();
         getUserSnips();
@@ -159,6 +161,10 @@ public class MainScene extends StageScene {
         }
     }
 
+    /*
+        Clears the search bar and displays all snips
+     */
+
     private void clearSearch() {
         if (userSnips.size() >= 2 && searching) {
             searching = false;
@@ -169,17 +175,28 @@ public class MainScene extends StageScene {
         searchBar.clear();
     }
 
+    /*
+        Searches through all snips that the user has access to and displays any snips matching the search term.\
+        - Searches can match snip titles or sub strings within a snip title.
+        - Searches can match tag names
+        - Searches can match languages
+     */
+
     private void searchSnips(JFXTextField searchBar) {
         searching = true;
         String search = searchBar.getText();
         ArrayList<Snip> searchedSnips = new ArrayList<Snip>();
         for (Snip s : userSnips) {
-            if (s.getTitle().contains(search) || s.getTags().contains(search)) {
+            if (s.getTitle().contains(search) || s.getTags().contains(search) || s.getLanguage().equalsIgnoreCase(search)) {
                 searchedSnips.add(s);
             }
         }
         updateSideSnips(searchedSnips);
     }
+
+    /*
+        Clears the currently displayed snip and then displays the snip that has been selected in the side bar.
+     */
 
     private void displaySelectedSideSnip() {
         clearDisplayedSnip();
@@ -205,6 +222,11 @@ public class MainScene extends StageScene {
         displayedSnip = selectedSideSnip;
     }
 
+    /*
+       Called on display of new snip. This displays the newest snip that belongs to a user. If the user does not have any snips
+       created yet it will display the create new snip page.
+     */
+
     private void displayMainSnip() {
         if (userSnips != null && userSnips.size() != 0) {
             displayedSnip = userSnips.get(0);
@@ -212,17 +234,24 @@ public class MainScene extends StageScene {
             ((TextArea) lookup("#main_code")).setText(displayedSnip.getCodeSnippet());
             ((JFXComboBox) lookup("#main_language")).getSelectionModel().select(displayedSnip.getLanguage());
             Pane tagList = (Pane) lookup("#main_taglist");
+            JFXTextField tagTextBox = (JFXTextField) lookup("#main_addtag");
+            tagTextBox.clear();
             if (displayedSnip.getTags()!=null) {
                 for (String tag : displayedSnip.getTags()) {
                     tagList.getChildren().add(new TagListData().toNode(tag));
                 }
             }
+            editSnip();
         } else {
             displayedSnip = null;
             JFXButton newButton = (JFXButton) lookup("#base_new");
             createNewSnip();
         }
     }
+
+    /*
+        This method will display all of the user snips along the side bar.
+     */
 
     private void displaySideSnips() {
         sideSnips = (JFXListView<Parent>) lookup("#base_selections");
@@ -232,10 +261,17 @@ public class MainScene extends StageScene {
         }
     }
 
+    /*
+        This method adds the given Snip *s* to the top of the side bar display. This is supposed to be the most recently created snip.
+     */
+
     private void updateSideSnips(Snip s) {
         sideSnips.getItems().add(0, new SnipListData().toNode(s));
     }
 
+    /*
+        This method clears the currently displayed sidebar and displays the side snip with the passed *snips* ArrayList.
+     */
     private void updateSideSnips(ArrayList<Snip> snips) {
         sideSnips.getItems().clear();
         for (Snip s : snips) {
@@ -243,7 +279,14 @@ public class MainScene extends StageScene {
         }
     }
 
+    /*
+        This method handles editing an already created snip.
+        - The method will make sure that the snips title and code is not empty before saving.
+        - This method will update everything at once so only 1 DB call is needed.
+     */
+
     private void editSnip() {
+        System.out.println("editing");
         ArrayList<String> tags = displayedSnip.getTags();
 
         JFXButton newButton = (JFXButton) lookup("#base_new");
@@ -256,9 +299,8 @@ public class MainScene extends StageScene {
         String newCode = ((TextArea) lookup("#main_code")).getText();
         String newLanguage = ((JFXComboBox) lookup("#main_language")).getSelectionModel().getSelectedItem().toString();
 
-        boolean readyToEdit = true;
-
         JFXTextField tagTextBox = (JFXTextField) lookup("#main_addtag");
+        tagTextBox.setFocusTraversable(false);
         tagTextBox.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
@@ -287,14 +329,18 @@ public class MainScene extends StageScene {
                             tagList.getChildren().remove(tagToDelete);
                         }
                     });
+
                 }
             }
         });
 
+        boolean readyToEdit = true;
+        //Checking for empty title
         if (!(newTitle != null && !newTitle.equals(""))) {
             ((JFXTextField) lookup("#main_title")).setStyle("-fx-prompt-text-fill: rgba(255, 0, 0, 1)");
             readyToEdit = false;
         }
+        //Checking for empty code snippet
         if (!(newCode != null && !newCode.equals(""))) {
             ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(255, 0, 0, 1)");
             readyToEdit = false;
@@ -306,11 +352,14 @@ public class MainScene extends StageScene {
             displayedSnip.setTitle(newTitle);
             displayedSnip.setLanguage(newLanguage);
             displayedSnip.setCodeSnippet(newCode);
+            System.out.println(displayedSnip);
             SQLUtils.editSnip(displayedSnip.getID(), newTitle, tags, newLanguage, newCode);
         }
-
-        update();
     }
+
+    /*
+        This method handles clearing the currently displayed snip. It will clear all textfields, dropdowns and tags.
+     */
 
     public void clearDisplayedSnip() {
         if (userSnips != null) {
@@ -339,7 +388,7 @@ public class MainScene extends StageScene {
 
         //Clear tag textbox and list
         JFXTextField tagTextbox = (JFXTextField) lookup("#main_addtag");
-        tagTextbox.clear();
+        tagTextbox.setText("");
         Pane tagList = (Pane) lookup("#main_taglist");
         for (int i=1; i<tagList.getChildren().size();){
             tagList.getChildren().remove(i);
@@ -348,7 +397,14 @@ public class MainScene extends StageScene {
 
     private double offset = 0;
 
+    /*
+        This method handles creating a new snip.
+        - Snip title and snip code is required to create a new snip, all other fields are optional.
+        - Appropriate error messages are displayed for empty fields that are required.
+     */
+
     private void createNewSnip() {
+        System.out.println("creating");
         offset = 0;
         ArrayList<String> tags = new ArrayList<String>();
         System.out.println(tags);
@@ -394,6 +450,7 @@ public class MainScene extends StageScene {
                             tagList.getChildren().remove(tagToDelete);
                         }
                     });
+
                 }
             }
         });
