@@ -9,7 +9,6 @@ public class Group {
     private String joinCode;
     private int ownerID;
     private int groupID;
-    private int owner;
 
     public Group(int groupID, String name) {
         this.groupID = groupID;

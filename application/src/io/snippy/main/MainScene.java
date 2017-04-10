@@ -20,8 +20,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import javax.swing.text.html.HTML;
-import javax.xml.soap.Text;
 import java.util.ArrayList;
 
 /**
@@ -86,6 +84,15 @@ public class MainScene extends StageScene {
                 JFXDialog temp = TeamsDialog.createAndShow(scene, overlay);
             }
         });
+
+        //FIXME, change main_share to a JFXButton if you want the fancy dialog
+        /*JFXButton shareButton = (JFXButton) this.lookup( "#main_share");
+        shareButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
+            @Override
+            public void handle(javafx.event.ActionEvent event) {
+                JFXDialog temp = ShareDialog.createAndShow(scene, overlay);
+            }
+        });*/
 
         JFXButton deleteButton = (JFXButton) this.lookup("#main_delete");
         deleteButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
@@ -414,11 +421,11 @@ public class MainScene extends StageScene {
                     int snipID = SQLUtils.createSnip(LoginScene.currentUser.getUserId(), snipTitle, tags, snipLanguage, snipCode);
                     displayedSnip = new Snip(snipID, LoginScene.currentUser.getUserId(), snipTitle, tags, snipLanguage, snipCode);
                     System.out.println(displayedSnip);
-                    MenuButton share = (MenuButton) lookup("#main_share");
+                    /*MenuButton share = (MenuButton) lookup("#main_share");
                     share.setStyle("-fx-background-color: #44aaff");
                     share.setDisable(false);
                     saveButton.setOnAction(edit -> editSnip());
-                    enableShareDel();
+                    enableShareDel();*/
                     update();
                 }
             }

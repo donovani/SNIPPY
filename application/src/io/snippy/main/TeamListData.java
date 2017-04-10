@@ -25,13 +25,13 @@ public class TeamListData {
 		JFXButton disbandButton = (JFXButton) node.lookup( "#team_disband" );
 
 		titleText.setText(nodeGroup.getName());
-		if ( userID == nodeGroup.getOwner() ) {
+		if ( userID == nodeGroup.getGroupOwnerID() ) {
 			leaveButton.setVisible( false );
-			//TODO: Delete group
+			//TODO: Delete group & remove any users who joined it.
 		}
 		else {
 			disbandButton.setVisible( false );
-			//TODO: Join group
+			//TODO: Remove user with userID from group.
 		}
 		return node;
 	}
