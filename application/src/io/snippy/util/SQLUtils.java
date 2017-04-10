@@ -4,6 +4,7 @@ import io.snippy.core.Group;
 import io.snippy.core.Snip;
 import sun.dc.pr.PRError;
 
+import javax.xml.transform.Result;
 import java.awt.*;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -449,6 +450,200 @@ public class SQLUtils {
     }
 
     /*done
+     * Method: deleteGroup
+     * Pre: takes in the group's id and user's id
+     * Post: returns true if the group was deleted, or false if error or not the group owner
+     */
+    public static boolean deleteGroup(int groupID, int userID) {
+        connect();
+        try {
+            String query = "SELECT * FROM `groups` WHERE ID = ? AND OwnerID = ?";
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, groupID);
+            stmnt.setInt(2, userID);
+            ResultSet rs = stmnt.executeQuery();
+
+            boolean owner = false;
+            while (rs.next()) {
+                owner = true;
+            }
+
+            if (!owner) {
+                return false;
+            }
+
+            query = "DELETE FROM `groups` WHERE `ID` = ?";
+            stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, groupID);
+            stmnt.execute();
+
+            query = "DELETE FROM `snipgroups` WHERE `groupID` = ?";
+            stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, groupID);
+            stmnt.execute();
+
+            query = "DELETE FROM `groupmembers` WHERE `groupID` = ?";
+            stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, groupID);
+            stmnt.execute();
+
+            return true;
+        } catch (Exception e) {
+            printErr(e);
+            return false;
+        }
+    }
+
+
+    /*done
+     * Method: leaveGroup
+     * Pre: takes in the group's id and user's id
+     * Post: returns true if the user left the group, or false if they were unable to leave
+     */
+    public static boolean leaveGroup(int groupID, int userID) {
+        connect();
+        try {
+            String query = "SELECT * FROM `groupmembers` WHERE userID = ? AND groupID = ?"; //make sure the user is a member of the group
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, userID);
+            stmnt.setInt(2, groupID);
+            ResultSet rs = stmnt.executeQuery();
+
+            boolean member = false;
+            while (rs.next()) {
+                member = true;
+            }
+
+            if (!member) {
+                return false;
+            }
+
+            //- - - - - - - - - - - - -
+            query = "SELECT * FROM `groups` WHERE ID = ? AND OwnerID = ?"; //find out if the user is the owner of the group
+            stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, groupID);
+            stmnt.setInt(2, userID);
+            rs = stmnt.executeQuery();
+
+            boolean owner = false;
+            while (rs.next()) {
+                owner = true;
+            }
+
+            if (owner) {// if the user is the owner of the group
+                query = "SELECT * FROM `groupmembers` WHERE groupID = ?";
+                stmnt = connection.prepareStatement(query);
+                stmnt.setInt(1, groupID);
+                rs = stmnt.executeQuery();
+
+                ArrayList<Integer> members = new ArrayList<Integer>();
+                while (rs.next()) {
+                    members.add(rs.getInt(1)); //save the id's of users in the group
+                }
+
+                if (members.size() == 1) { //if the only member of a group leave
+                    return deleteGroup(groupID, userID);
+                }
+
+                int newOwner = -1;
+                for (int i = 0; i < members.size(); i++) {
+                    if (members.get(i) != userID) {
+                        newOwner = members.get(i); //get the first user that isnt the owner
+                        break;
+                    }
+                }
+
+                if (newOwner == -1) {
+                    return false;
+                    //there was an error
+                }
+                query = "UPDATE `groups` SET `OwnerID` = ? WHERE `ID` = ? AND `OwnerID` = ?";
+                stmnt = connection.prepareStatement(query);
+                stmnt.setInt(1, newOwner);
+                stmnt.setInt(2, groupID);
+                stmnt.setInt(3, userID);
+                stmnt.execute();
+            }
+
+            //- - - - - - - - - - - - -
+            query = "DELETE FROM `groupmembers` WHERE userID = ? AND groupID = ?"; //remove the user from the group
+            stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, userID);
+            stmnt.setInt(2, groupID);
+            stmnt.execute();
+
+
+            query = "DELETE sg FROM snipgroups sg, snips s WHERE s.UserID = ? AND s.ID = sg.snipID AND sg.groupID = ?"; //remove all the user's shared snips
+            stmnt = connection.prepareStatement(query);
+            stmnt.setInt(1, userID);
+            stmnt.setInt(2, groupID);
+            stmnt.execute();
+
+            return true;
+            //- - - - - - - - - - - - -
+        } catch (Exception e) {
+            printErr(e);
+            return false;
+        }
+    }
+
+    /*done
+     * Method: groupExists
+     * Pre: takes in a group name
+     * Post: returns true if group name exists, or false if not
+     */
+    public static boolean groupExists(String groupName) {
+        connect();
+        try {
+            String query = "SELECT * FROM `groups` WHERE `GName` LIKE ?";
+            PreparedStatement stmnt = connection.prepareStatement(query);
+            stmnt.setString(1, groupName);
+            ResultSet rs = stmnt.executeQuery();
+
+            boolean exits = false;
+            while (rs.next()) {
+                exits = true;
+                break;
+            }
+
+            return exits;
+        } catch (Exception e) {
+            printErr(e);
+            return false;
+        }
+    }
+
+    /*done
+     * Method: getGroupId()
+     * Pre: takes in a group name
+     * Post: returns the id of the group or -1 if error, or -2 if group doesnt exist
+     */
+    public static int getGroupId(String groupName) {
+        connect();
+        try {
+            if (groupExists(groupName)) {
+                String query = "SELECT * FROM `groups` WHERE `GName` LIKE ?";
+                PreparedStatement stmnt = connection.prepareStatement(query);
+                stmnt.setString(1, groupName);
+                ResultSet rs = stmnt.executeQuery();
+
+                int id = -1;
+                while (rs.next()) {
+                    id = rs.getInt(1);
+                    return id;
+                }
+                return id;
+            } else {
+                return -2;
+            }
+
+        } catch (Exception e) {
+            printErr(e);
+            return -1;
+        }
+    }
+
+    /*done
      * Method: getUserGroups
      * Pre: takes in a user id
      * Post: returns a list of the groups a user is a part of (id|groupname) or null if error
@@ -707,7 +902,7 @@ public class SQLUtils {
             if (tags != null && tags.size() > 0) {
                 tgs = "";
                 for (int i = 0; i < tags.size(); i++) {
-                    tgs = tags.get(i) + "~";
+                    tgs = tgs + tags.get(i) + "~";
                 }
                 tgs = tgs.substring(0, tgs.length() - 1);
             }
@@ -955,11 +1150,32 @@ public class SQLUtils {
 
             System.out.println("==========");
 
-            System.out.println("Create Group (1): " + createGroup("Test Group 1", 1));
-            System.out.println("Create Group (3): " + createGroup("Test Group 2", 3));
+            System.out.println("Create Group (Owner 1): " + createGroup("Test Group 1", 1));
+            System.out.println("Create Group (Owner 3): " + createGroup("Test Group 2", 3));
 
             System.out.println("Join Group (2 into 1): " + joinGroup(1, 2));
             System.out.println("Join Group (4 into 2): " + joinGroup(2, 4));
+
+            System.out.println("");
+
+            int group = createGroup("Test Group 3", 2);
+            System.out.println("Create Group (Owner 2): " + group);
+            System.out.println("DeleteGroup (Test Group 3): " + deleteGroup(group, 2));
+
+            System.out.println("");
+
+            group = createGroup("Test Group 3", 2);
+            System.out.println("Create Group (again)(Owner 2): " + group);
+            System.out.println("Leave Group (user 2) (" + group + ")" + leaveGroup(getGroupId("Test Group 3"), 2));
+
+            System.out.println("");
+
+            group = createGroup("Test Group 3", 2);
+            System.out.println("Join Group (1 into " + group + ")(Owner): " + joinGroup(group, 2));
+            System.out.println("Join Group (1 into " + group + "): " + joinGroup(group, 1));
+            System.out.println("Join Group (3 into " + group + "): " + joinGroup(group, 3));
+            System.out.println("Join Group (4 into " + group + "): " + joinGroup(group, 4));
+            System.out.println("Leave Group (" + group + ") (User 2): " + leaveGroup(group, 2));
 
             System.out.println("==========");
 
@@ -979,11 +1195,14 @@ public class SQLUtils {
             System.out.println("==========");
 
             System.out.println("Sharing Snip (1): " + shareSnip(1, 1));
+            System.out.println("Sharing Snip (1 - " + group + "): " + shareSnip(1, group));
             System.out.println("Sharing Snip (2): " + shareSnip(2, 1));
             System.out.println("Sharing Snip (3): " + shareSnip(3, 2));
 
             System.out.println("Removing Snip (4): " + removeSnip(4));
             System.out.println("UnSharing Snip (2): " + unshareSnip(2, 1));
+
+            System.out.println("User 1 leaving (" + group + "): " + leaveGroup(group, 1));
 
             System.out.println("==========");
 
