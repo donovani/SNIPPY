@@ -148,6 +148,7 @@ public class MainScene extends StageScene {
         getUserSnips();
         displayMainSnip();
         displaySideSnips();
+        setupShare();
     }
 
     /*
@@ -491,6 +492,8 @@ public class MainScene extends StageScene {
     private void setupShare() {
         try {
             MenuButton share = (MenuButton) lookup("#main_share"); //grab the share button
+            share.getItems().clear();
+
             if (displayedSnip.getID() != -1) { //if there is a displayed snip
                 User user = LoginScene.currentUser; //grab the current user
                 ArrayList<Group> usersGroups = SQLUtils.getUserGroups(user.getUserId()); //get an arraylist of all the user's groups
