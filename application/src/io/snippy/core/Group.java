@@ -6,6 +6,7 @@ package io.snippy.core;
 public class Group {
 
     private String name;
+    private String joinCode;
     private int ownerID;
     private int groupID;
 
@@ -24,7 +25,11 @@ public class Group {
         return name;
     }
 
-    public int getGroupID() {
+    public String getCode(){
+        return joinCode;
+    }
+
+    public int getGroupID(){
         return groupID;
     }
 

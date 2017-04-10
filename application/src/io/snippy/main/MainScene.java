@@ -1,38 +1,26 @@
 package io.snippy.main;
 
 import com.jfoenix.controls.*;
-import com.jfoenix.controls.events.JFXDialogEvent;
 import com.jfoenix.transitions.hamburger.HamburgerBasicCloseTransition;
-import com.sun.deploy.util.ArrayUtil;
 import io.snippy.core.*;
 import io.snippy.login.LoginScene;
 import io.snippy.util.Language;
 import io.snippy.util.SQLUtils;
 import io.snippy.util.UXUtils;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import org.pmw.tinylog.Logger;
-import sun.applet.Main;
-import sun.rmi.runtime.Log;
 
-import javax.swing.text.html.HTML;
-import javax.xml.soap.Text;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * The root scene for most of SNIPPY.
@@ -88,6 +76,23 @@ public class MainScene extends StageScene {
             languageOptions.add(l.NAME);
         }
         languageDropdown.getItems().addAll(languageOptions);
+
+        JFXButton teamsButton = (JFXButton) this.lookup("#base_teams");
+        teamsButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
+            @Override
+            public void handle(javafx.event.ActionEvent event) {
+                JFXDialog temp = TeamsDialog.createAndShow(scene, overlay);
+            }
+        });
+
+        //FIXME, change main_share to a JFXButton if you want the fancy dialog
+        /*JFXButton shareButton = (JFXButton) this.lookup( "#main_share");
+        shareButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
+            @Override
+            public void handle(javafx.event.ActionEvent event) {
+                JFXDialog temp = ShareDialog.createAndShow(scene, overlay);
+            }
+        });*/
 
         JFXButton deleteButton = (JFXButton) this.lookup("#main_delete");
         deleteButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
@@ -169,7 +174,7 @@ public class MainScene extends StageScene {
         String search = searchBar.getText();
         ArrayList<Snip> searchedSnips = new ArrayList<Snip>();
         for (Snip s : userSnips) {
-            if (s.getTitle().contains(search)) {
+            if (s.getTitle().contains(search) || s.getTags().contains(search)) {
                 searchedSnips.add(s);
             }
         }
@@ -191,9 +196,9 @@ public class MainScene extends StageScene {
             updateSideSnips(displayedSnip);
             userSnips.add(displayedSnip);
         }
-        if (displayedSnip.getTags()!=null) {
+        if (selectedSideSnip.getTags()!=null) {
             Pane tagList = (Pane) lookup("#main_taglist");
-            for (String tag : displayedSnip.getTags()) {
+            for (String tag : selectedSideSnip.getTags()) {
                 tagList.getChildren().add(new TagListData().toNode(tag));
             }
         }
@@ -415,12 +420,11 @@ public class MainScene extends StageScene {
                     ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
                     int snipID = SQLUtils.createSnip(LoginScene.currentUser.getUserId(), snipTitle, tags, snipLanguage, snipCode);
                     displayedSnip = new Snip(snipID, LoginScene.currentUser.getUserId(), snipTitle, tags, snipLanguage, snipCode);
-                    System.out.println(displayedSnip);
-                    MenuButton share = (MenuButton) lookup("#main_share");
+                    /*MenuButton share = (MenuButton) lookup("#main_share");
                     share.setStyle("-fx-background-color: #44aaff");
                     share.setDisable(false);
+                    enableShareDel();*/
                     saveButton.setOnAction(edit -> editSnip());
-                    enableShareDel();
                     update();
                 }
             }
@@ -479,61 +483,5 @@ public class MainScene extends StageScene {
 
     @Override
     public void onDispose() {
-    }
-}
-
-
-class DeleteDialog extends JFXDialog {
-    private static JFXDialog dialog;
-    private final MainScene scene;
-    private final StackPane stackPane;
-    private final int snipID;
-    private JFXDialogLayout layout;
-    private JFXButton cancelButton, confirmButton;
-
-    private DeleteDialog(MainScene scene, StackPane stackPane, int snipID) {
-        this.stackPane = stackPane;
-        this.snipID = snipID;
-        this.layout = new JFXDialogLayout();
-        this.scene = scene;
-        create();
-    }
-
-    private final void create() {
-        cancelButton = new JFXButton(R.strings("common.cancel"));
-        confirmButton = new JFXButton(R.strings("delete.confirm"));
-        confirmButton.setStyle("-fx-text-fill: WHITE; -fx-background-color: RED;");
-
-        layout.setHeading(new Label(R.strings("delete.header")));
-        layout.setBody(new Label(R.strings("delete.body")));
-        layout.setActions(cancelButton, confirmButton);
-
-        cancelButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
-            @Override
-            public void handle(javafx.event.ActionEvent event) {
-                dialog.close();
-            }
-        });
-
-        confirmButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
-            @Override
-            public void handle(javafx.event.ActionEvent event) {
-                SQLUtils.removeSnip(snipID);
-                dialog.close();
-                scene.clearDisplayedSnip();
-                scene.update();
-            }
-        });
-
-        this.setTransitionType(DialogTransition.CENTER);
-        this.setContent(layout);
-    }
-
-    public static final JFXDialog createAndShow(MainScene s, StackPane sp, int id) {
-        JFXDialog d = new DeleteDialog(s, sp, id);
-        dialog = d;
-
-        d.show(sp);
-        return d;
     }
 }
