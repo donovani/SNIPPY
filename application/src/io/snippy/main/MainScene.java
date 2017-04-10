@@ -169,7 +169,7 @@ public class MainScene extends StageScene {
         String search = searchBar.getText();
         ArrayList<Snip> searchedSnips = new ArrayList<Snip>();
         for (Snip s : userSnips) {
-            if (s.getTitle().contains(search)) {
+            if (s.getTitle().contains(search) || s.getTags().contains(search)) {
                 searchedSnips.add(s);
             }
         }
