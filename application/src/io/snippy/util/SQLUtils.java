@@ -463,7 +463,7 @@ public class SQLUtils {
 
             ResultSet rs = stmnt.executeQuery();
             while (rs.next()) {
-                groups.add(new Group(rs.getInt(1), rs.getString(2)));
+                groups.add(new Group(rs.getInt(1), rs.getInt(3), rs.getString(2)));
             }
 
             return groups;
@@ -655,14 +655,14 @@ public class SQLUtils {
     }
 
     public static int createSnip(int userID, String title, ArrayList<String> tags, String lang, String code) {
-        System.out.println("Tags before split: "+tags);
+        System.out.println("Tags before split: " + tags);
         String tgs = "";
-        if (tags.size()!=0) {
+        if (tags.size() != 0) {
             for (int i = 0; i < tags.size(); i++) {
                 tgs = tgs + tags.get(i) + "~";
             }
             tgs = tgs.substring(0, tgs.length() - 1);
-            System.out.println("SQL Tags: "+tgs);
+            System.out.println("SQL Tags: " + tgs);
         }
 
         connect();
@@ -993,7 +993,13 @@ public class SQLUtils {
 
             System.out.println("==========");
 
-            System.out.println("Groups user 2 is in: " + Arrays.toString(getUserGroups(2).toArray()));
+            System.out.println("Groups user 2 is in: ");
+            ArrayList<Group> groups = getUserGroups(2);
+
+            System.out.println("\tCount = " + groups.size());
+            for (int i = 0; i < groups.size(); i++) {
+                System.out.println(groups.get(i).toString());
+            }
 
             System.out.println("==========");
 

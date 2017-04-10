@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
 <?import com.jfoenix.controls.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="250.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <JFXListView fx:id="teams_list" layoutY="50.0" prefHeight="200.0" prefWidth="400.0" />
-      <JFXTextField fx:id="teams_code" alignment="CENTER_RIGHT" layoutX="182.0" layoutY="15.0" prefHeight="25.0" prefWidth="156.0" promptText="a d d   t e a m   b y   c o d e" />
-      <JFXButton fx:id="teams_add" layoutX="349.0" layoutY="16.0" style="-fx-background-color: #00aaaa;" text="ADD" textFill="WHITE" />
+      <JFXListView fx:id="teams_list" layoutY="85.0" prefHeight="215.0" prefWidth="500.0" />
+      <JFXTextField fx:id="teams_code" alignment="CENTER_RIGHT" layoutX="231.0" layoutY="10.0" prefHeight="25.0" prefWidth="200.0" promptText="j o i n   t e a m   b y   c o d e" />
+      <JFXButton fx:id="teams_join" layoutX="457.0" layoutY="10.0" style="-fx-background-color: #00aaaa;" text="JOIN" textFill="WHITE" />
+      <JFXButton fx:id="teams_create" layoutX="442.0" layoutY="46.0" style="-fx-background-color: #ff6600;" text="CREATE" textFill="WHITE" />
+      <JFXTextField fx:id="teams_name" alignment="CENTER_RIGHT" layoutX="231.0" layoutY="46.0" prefHeight="25.0" prefWidth="200.0" promptText="c r e a t e   t e a m   b y   n a m e" />
+      <Label layoutY="7.0" prefHeight="75.0" prefWidth="215.0" text="Give your fellow collaborators your team's code! Snips that are shared with your team appear to all of your teammates too!" textFill="GREY" wrapText="true" />
    </children>
 </Pane>
