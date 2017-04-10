@@ -196,9 +196,9 @@ public class MainScene extends StageScene {
             updateSideSnips(displayedSnip);
             userSnips.add(displayedSnip);
         }
-        if (displayedSnip.getTags()!=null) {
+        if (selectedSideSnip.getTags()!=null) {
             Pane tagList = (Pane) lookup("#main_taglist");
-            for (String tag : displayedSnip.getTags()) {
+            for (String tag : selectedSideSnip.getTags()) {
                 tagList.getChildren().add(new TagListData().toNode(tag));
             }
         }
@@ -420,12 +420,11 @@ public class MainScene extends StageScene {
                     ((TextArea) lookup("#main_code")).setStyle("-fx-prompt-text-fill: rgba(0, 0, 0, 1)");
                     int snipID = SQLUtils.createSnip(LoginScene.currentUser.getUserId(), snipTitle, tags, snipLanguage, snipCode);
                     displayedSnip = new Snip(snipID, LoginScene.currentUser.getUserId(), snipTitle, tags, snipLanguage, snipCode);
-                    System.out.println(displayedSnip);
                     /*MenuButton share = (MenuButton) lookup("#main_share");
                     share.setStyle("-fx-background-color: #44aaff");
                     share.setDisable(false);
-                    saveButton.setOnAction(edit -> editSnip());
                     enableShareDel();*/
+                    saveButton.setOnAction(edit -> editSnip());
                     update();
                 }
             }
