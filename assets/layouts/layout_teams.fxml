@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import com.jfoenix.controls.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <JFXTextArea fx:id="teams_list" layoutY="100.0" prefHeight="200.0" prefWidth="215.0" editable="false"/>
+
+      <JFXButton fx:id="teams_create" layoutX="441.0" layoutY="86.0" style="-fx-background-color: #ff6600;" text="CREATE" textFill="WHITE" />
+      <JFXTextField fx:id="teams_name" alignment="CENTER_RIGHT" layoutX="231.0" layoutY="86.0" prefHeight="25.0" prefWidth="200.0" promptText="c r e a t e   t e a m   b y   n a m e" />
+
+      <JFXButton fx:id="teams_join" layoutX="457.0" layoutY="10.0" style="-fx-background-color: #00aaaa;" text="JOIN" textFill="WHITE" />
+      <JFXTextField fx:id="teams_code" alignment="CENTER_RIGHT" layoutX="231.0" layoutY="10.0" prefHeight="25.0" prefWidth="200.0" promptText="j o i n   t e a m   b y   n a m e" />
+
+      <JFXButton fx:id="teams_leave" layoutX="450.0" layoutY="162.0" style="-fx-background-color: #00aaaa;" text="LEAVE" textFill="WHITE" />
+      <JFXTextField fx:id="teams_leave_name" alignment="CENTER_RIGHT" layoutX="231.0" layoutY="162.0" prefHeight="25.0" prefWidth="200.0" promptText="l e a v e   t e a m  b y  n a m e" />
+
+      <JFXButton fx:id="teams_delete" layoutX="443.0" layoutY="238" style="-fx-background-color: #ff0000;" text="DELETE" textFill="WHITE" />
+      <JFXTextField fx:id="teams_delete_name" alignment="CENTER_RIGHT" layoutX="231.0" layoutY="238" prefHeight="25.0" prefWidth="200.0" promptText="d e l e t e   t e a m   b y   n a m e" />
+
+      <Label layoutY="7.0" prefHeight="75.0" prefWidth="215.0" text="Give your fellow collaborators your team's code! Snips that are shared with your team appear to all of your teammates too!" textFill="GREY" wrapText="true" />
+   </children>
+</Pane>

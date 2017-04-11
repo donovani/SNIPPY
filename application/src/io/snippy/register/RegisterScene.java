@@ -7,6 +7,7 @@ import com.jfoenix.controls.JFXTextField;
 import io.snippy.core.StageScene;
 import io.snippy.login.LoginScene;
 import io.snippy.main.MainScene;
+import io.snippy.util.PasswordCheck;
 import io.snippy.util.SQLUtils;
 import io.snippy.util.UXUtils;
 import javafx.event.ActionEvent;
@@ -38,6 +39,7 @@ public class RegisterScene extends StageScene {
 
     @Override
     public void onCreate() {
+        hideErrors();
         JFXButton cancelButton = (JFXButton) lookup("#register_cancel"); //cancel button
         cancelButton.setOnAction(event -> switchScreen(LoginScene.class)); //go to login screen on click
 
@@ -91,6 +93,8 @@ public class RegisterScene extends StageScene {
                 println("==========\n\n");
                 //END DEBUG
 
+                PasswordCheck pc = new PasswordCheck();
+
                 if (!email.matches(EMAIL_REGEX) || email.equals("")) { //no email visible
                     hideErrors();
                     lookup("#register_error1").setVisible(true);
@@ -111,6 +115,11 @@ public class RegisterScene extends StageScene {
                     lookup("#register_error3").setVisible(true);
 
                     println("Passwords do not match");
+                } else if (!pc.checkPass(pass1)) {
+                    hideErrors();
+                    lookup("#register_error7").setVisible(true);
+
+                    println("Password is not safe enough");
                 } else if (sec1.equals("") && !seca1.equals("")) {//if sec q or answer are empty while the other is filled out
                     hideErrors();
                     lookup("#register_error4").setVisible(true);
@@ -203,6 +212,7 @@ public class RegisterScene extends StageScene {
         lookup("#register_error4").setVisible(false);
         lookup("#register_error5").setVisible(false);
         lookup("#register_error6").setVisible(false);
+        lookup("#register_error7").setVisible(false);
         lookup("#register_success").setVisible(false);
     }
 

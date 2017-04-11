@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import com.jfoenix.controls.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="672.0" style="-fx-background-color: #dddddd; -fx-padding: 32;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <JFXButton fx:id="settings_save" layoutX="616.0" layoutY="415.0" style="-fx-background-color: #00aaaa;" text="SAVE" textFill="WHITE" />
+      <Text layoutX="22.0" layoutY="37.0" strokeType="OUTSIDE" strokeWidth="0.0" text="General Settings">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="50.0" layoutY="89.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Connection timeout in seconds:" />
+      <JFXTextField fx:id="settings_timeout" alignment="CENTER" layoutX="567.0" layoutY="72.0" prefHeight="25.0" prefWidth="71.0" promptText="t i m e o u t" text="60" />
+      <Text layoutX="50.0" layoutY="132.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Enable offline mode when unable to connect:" />
+      <JFXCheckBox fx:id="settings_offline" checkedColor="#ff6600" layoutX="583.0" layoutY="119.0" text=" " />
+      <Text layoutX="50.0" layoutY="177.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Change the look of SNIPPY:" />
+      <JFXRadioButton fx:id="settings_theme_light" layoutX="533.0" layoutY="164.0" selected="true" style="-jfx-selected-color: #ff6600;" text="Light Theme">
+         <toggleGroup>
+            <ToggleGroup fx:id="color_themes" />
+         </toggleGroup>
+      </JFXRadioButton>
+      <JFXRadioButton fx:id="settings_theme_dark" layoutX="532.0" layoutY="208.0" style="-jfx-selected-color: #ff6600;" text="Dark Theme" toggleGroup="$color_themes" />
+      <ImageView fitHeight="128.0" fitWidth="128.0" layoutX="11.0" layoutY="311.0" opacity="0.25" pickOnBounds="true" preserveRatio="true" style="-fx-rotate: 20;">
+         <image>
+            <Image url="@../images/logo.png" />
+         </image>
+      </ImageView>
+      <Text fill="#888888" layoutX="179.0" layoutY="432.0" strokeType="OUTSIDE" strokeWidth="0.0" text="NOTE: SNIPPY is in development. It may be missing features.">
+         <font>
+            <Font name="System Italic" size="12.0" />
+         </font>
+      </Text>
+   </children>
+</Pane>
