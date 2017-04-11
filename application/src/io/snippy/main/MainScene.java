@@ -141,7 +141,9 @@ public class MainScene extends StageScene {
     }
 
     /*
-        This method updates the main screen and the side bar. Used primarily to reset the screen.
+     * Method: update
+     * Pre: None
+     * Post: This method updates the main screen and the side bar. Used primarily to reset the screen.
      */
     public void update() {
         clearDisplayedSnip();
@@ -151,8 +153,13 @@ public class MainScene extends StageScene {
     }
 
     /*
-      Gets all snips created by the user first. Then ads the snips of the groups they are in.
+     * Method: getUserSnips
+     * Pre: None
+     * Post: Adds all snips that the user has access to to the *userSnips* ArrayList
+     * - Adds the snips that the user has created first.
+     * - Adds the snips that belong to groups the user is a member of.
      */
+
     private void getUserSnips() {
         if (userSnips != null && userSnips.size() > 0) {
             userSnips.clear();
@@ -166,7 +173,9 @@ public class MainScene extends StageScene {
     }
 
     /*
-      Clears the search bar and displays all snips
+     * Method: clearSearch
+     * Pre: None
+     * Post: Clears the search bar and dispalys all the snips in the *userSnips* ArrayList.
      */
     private void clearSearch() {
         if (userSnips.size() >= 2 && searching) {
@@ -179,10 +188,13 @@ public class MainScene extends StageScene {
     }
 
     /*
-      Searches through all snips that the user has access to and displays any snips matching the search term.\
-      - Searches can match snip titles or sub strings within a snip title.
-      - Searches can match tag names
-      - Searches can match languages
+     * Method: searchSnips
+     * Pre: None
+     * Post: Searches through the *userSnips* ArrayList. This ArrayList contains all the snips that a user has access to.
+     * Searches can match the following:
+     *  - Snip titles or sub strings within a snip title
+     *  - Tag names
+     *  - Languages
      */
     private void searchSnips(JFXTextField searchBar) {
         searching = true;
@@ -197,9 +209,15 @@ public class MainScene extends StageScene {
     }
 
     /*
-      Clears the currently displayed snip and then displays the snip that has been selected in the side bar.
+     * Method: displaySelectedSideSnip
+     * Pre: None
+     * Post: Clears the currently displayed side snip and displays the snip that the user has selected in the side bar.
+     *  - This will also add the currently displayed snip to the userSnips arraylist. This would only occur in situations where a snip
+     *  created in the current session is being displayed for the first time. Will only happen once per new snip.
      */
+
     private void displaySelectedSideSnip() {
+        editSnip();
         clearDisplayedSnip();
         enableShareDel();
         MenuButton share = (MenuButton) lookup("#main_share");
@@ -224,9 +242,12 @@ public class MainScene extends StageScene {
     }
 
     /*
-      Called on display of new snip. This displays the newest snip that belongs to a user. If the user does not have any snips
-      created yet it will display the create new snip page.
+     * Method: displayMainSnip
+     * Pre: None
+     * Post: This method displays the users most recently created snip that a user has created.
+     *      - If the user does not have any snips created yet it will display the create new snip page.
      */
+
     private void displayMainSnip() {
         if (userSnips != null && userSnips.size() != 0) {
             displayedSnip = userSnips.get(0);
@@ -278,12 +299,13 @@ public class MainScene extends StageScene {
     }
 
     /*
-      This method handles editing an already created snip.
-      - The method will make sure that the snips title and code is not empty before saving.
-      - This method will update everything at once so only 1 DB call is needed.
+     * Method: editSNip
+     * Pre: None
+     * Post: This method handles editing an already created snip.
+     *  - The method will validate that the title and code of the snip are not empty.
+     *  - The method will update the displayedSnip object and update it in the database as well
      */
     private void editSnip() {
-        System.out.println("editing");
         ArrayList<String> tags = displayedSnip.getTags();
 
         JFXButton newButton = (JFXButton) lookup("#base_new");
@@ -308,7 +330,6 @@ public class MainScene extends StageScene {
                     }
                     tagTextBox.clear();
                     Pane tagList = (Pane) lookup("#main_taglist");
-                    //System.out.println(tagList.getChildren().toString());
                     tags.add(tagName);
 
                     Parent node = new TagListData().toNode(tagName);
@@ -318,7 +339,6 @@ public class MainScene extends StageScene {
                     offset = offset + (node.toString().length() * 1.25) + 3;
 
                     tagList.getChildren().add(node);
-                    System.out.println(tags);
                     tagList.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent event) {
@@ -349,13 +369,14 @@ public class MainScene extends StageScene {
             displayedSnip.setTitle(newTitle);
             displayedSnip.setLanguage(newLanguage);
             displayedSnip.setCodeSnippet(newCode);
-            System.out.println(displayedSnip);
             SQLUtils.editSnip(displayedSnip.getID(), newTitle, tags, newLanguage, newCode);
         }
     }
 
     /*
-      This method handles clearing the currently displayed snip. It will clear all textfields, dropdowns and tags.
+     * Method: clearDisplayedSnip
+     * Pre: None
+     * Post: This method handles clearing the currently displayed snip. It will clear all textfields, dropdowns and tags.
      */
     public void clearDisplayedSnip() {
         if (userSnips != null) {
@@ -394,15 +415,16 @@ public class MainScene extends StageScene {
     private double offset = 0;
 
     /*
-      This method handles creating a new snip.
-      - Snip title and snip code is required to create a new snip, all other fields are optional.
-      - Appropriate error messages are displayed for empty fields that are required.
+     * Method: createNewSnip
+     * Pre: None
+     * Post: Creates a new snip that is added to the userSnips arraylist.
+     *      - Snip title and snip code is required to create a new snip, all other fields are optional.
+            - Appropriate error messages are displayed for empty fields that are required.
+            - Tags are displayed as the user adds them
      */
     private void createNewSnip() {
-        System.out.println("creating");
         offset = 0;
         ArrayList<String> tags = new ArrayList<String>();
-        System.out.println(tags);
         disableShareDel();
         clearDisplayedSnip();
 
@@ -427,28 +449,27 @@ public class MainScene extends StageScene {
                     }
                     tagTextBox.clear();
                     Pane tagList = (Pane) lookup("#main_taglist");
-                    //System.out.println(tagList.getChildren().toString());
                     tags.add(tagName);
 
                     Parent node = new TagListData().toNode(tagName);
                     node.setLayoutX(node.getLayoutX() + offset);
+                    node.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent event) {
+                            tags.remove(tagToDelete);
+                            tagList.getChildren().remove(node);
+                        }
+                    });
 
                     //TODO: FIND BETTER OFFSET
                     offset = offset + (node.toString().length() * 1.25) + 3;
 
                     tagList.getChildren().add(node);
-                    System.out.println(tags);
-                    tagList.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(MouseEvent event) {
-                            tags.remove(tagToDelete);
-                            tagList.getChildren().remove(tagToDelete);
-                        }
-                    });
-
                 }
             }
         });
+
+
 
         JFXButton saveButton = (JFXButton) lookup("#main_save");
         saveButton.setOnAction(new EventHandler<ActionEvent>() { // on click
