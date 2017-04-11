@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <JFXCheckBox fx:id="share_toggle" checkedColor="#03a9f4" layoutX="452.0" layoutY="4.0" text=" " />
+      <Text fx:id="share_name" layoutX="10.0" layoutY="17.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Team Name" wrappingWidth="427.8203125">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Text>
+   </children>
+</Pane>

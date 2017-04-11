@@ -15,13 +15,21 @@ public class SnipListData {
 	private String uuid;
 	private boolean favorite = false;
 	private boolean selected, hovered;
+	private Snip nodeSnip;
 
 	public Parent toNode(Snip nodeSnip) {
+		this.nodeSnip = nodeSnip;
 		Parent node = UXUtils.inflate( "assets/layouts/list_item.fxml" );
-		Text titleText = (Text) node.lookup( "#list_item_title" );
+		Text titleText = (Text) node.lookup("#list_item_title");
 		Text languageText = (Text) node.lookup( "#list_item_written" );
-		titleText.setText(nodeSnip.getTitle() );
+		titleText.setText(nodeSnip.getTitle());
 		languageText.setText( "Written in " + nodeSnip.getLanguage() );
+		node.setOnMouseClicked(event -> setSelectedSnip());
 		return node;
 	}
+
+	public void setSelectedSnip(){
+		MainScene.selectedSideSnip = nodeSnip;
+	}
+
 }

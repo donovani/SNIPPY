@@ -1,5 +1,7 @@
 package io.snippy.core;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -11,23 +13,22 @@ public class Snip {
     private int snipID = -1;
     private int ownerID;
     private String title;
-    private String[] tags;
+    private ArrayList<String> tags = new ArrayList<String>();
     private String language;
-    // private String documentation;
     private String codeSnippet;
-    //private Group[] groups; Omitted until groups are implemented
 
-    public Snip(String title, String codeSnippet, String language) {
+    public Snip(String title, String codeSnippet, String language, ArrayList<String> t) {
         this.title = title;
         this.codeSnippet = codeSnippet;
         this.language = language;
+        this.tags= new ArrayList<String>(t);
     }
 
-    public Snip(int id, int userID, String ttle, String[] tgs, String lang, String code) {
+    public Snip(int id, int userID, String ttle, ArrayList<String> t, String lang, String code) {
         this.snipID = id;
         this.ownerID = userID;
         this.title = ttle;
-        this.tags = tgs;
+        this.tags = new ArrayList<String>(t);
         this.language = lang;
         this.codeSnippet = code;
     }
@@ -45,13 +46,30 @@ public class Snip {
         this.title = name;
     }
 
-    public String[] getTags() {
+    public ArrayList<String> getTags() {
         return tags;
     }
 
-    public void setTags(String[] tags) {
+    public void setTags(ArrayList<String> tags) {
         this.tags = tags;
     }
+
+    public boolean addTag(String tag){
+        if (tags.contains(tag)){
+            return false;
+        }
+        tags.add(tag);
+        return true;
+    }
+    public void removeTag(String tag){
+        for (String t: tags){
+            if (t.equals(tag)){
+                tags.remove(t);
+            }
+        }
+    }
+
+
 
     public String getLanguage() {
         return language;
@@ -72,8 +90,10 @@ public class Snip {
     @Override
     public String toString() {
         return "Snip{" +
-                "name='" + title + '\'' +
-                ", tags=" + Arrays.toString(tags) +
+                "snipID=" + snipID +
+                ", ownerID=" + ownerID +
+                ", title='" + title + '\'' +
+                ", tags=" +tags +
                 ", language='" + language + '\'' +
                 ", codeSnippet='" + codeSnippet + '\'' +
                 '}';
