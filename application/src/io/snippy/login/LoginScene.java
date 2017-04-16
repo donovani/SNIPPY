@@ -12,6 +12,8 @@ import io.snippy.util.SQLUtils;
 import io.snippy.util.UXUtils;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -40,26 +42,36 @@ public class LoginScene extends StageScene {
         //boolean debug = true; //NEEDS TO BE REMOVED
         JFXButton loginButton = (JFXButton) lookup("#login_submit");
 
-        loginButton.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
-            @Override
-            public void handle(javafx.event.ActionEvent event) {
-                String username = ((JFXTextField) lookup("#login_email")).getText(); //get username
-                String password = ((JFXPasswordField) lookup("#login_password")).getText();// get password
+        JFXPasswordField pass = (JFXPasswordField) lookup("#login_password");
 
-                int userID = SQLUtils.login(username, password); //get user's id
-                if (userID != -1) {//if the id isnt -1
-                    currentUser = new User(userID);
-                    switchScreen(MainScene.class); //good to go
-                } else { //else error
-                    lookup("#login_error").setVisible(true);
+        pass.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if (event.getCode().equals(KeyCode.ENTER)) {
+                    login();
                 }
             }
         });
+
+        loginButton.setOnAction(event -> login());
 
         JFXButton registerButton = (JFXButton) lookup("#login_register");
         registerButton.setOnAction(event -> switchScreen(RegisterScene.class));
         JFXButton forgotButton = (JFXButton) lookup("#login_forgot");
         forgotButton.setOnAction(event -> switchScreen(RecoverEmailScene.class));
+    }
+
+    private void login() {
+        String username = ((JFXTextField) lookup("#login_email")).getText(); //get username
+        String password = ((JFXPasswordField) lookup("#login_password")).getText();// get password
+
+        int userID = SQLUtils.login(username, password); //get user's id
+        if (userID != -1) {//if the id isnt -1
+            currentUser = new User(userID);
+            switchScreen(MainScene.class); //good to go
+        } else { //else error
+            lookup("#login_error").setVisible(true);
+        }
     }
 
     @Override
