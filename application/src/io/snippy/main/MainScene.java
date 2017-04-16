@@ -202,7 +202,22 @@ public class MainScene extends StageScene {
         String search = searchBar.getText();
         ArrayList<Snip> searchedSnips = new ArrayList<Snip>();
         for (Snip s : userSnips) {
-            if (s.getTitle().contains(search) || s.getTags().contains(search) || s.getLanguage().equalsIgnoreCase(search)) {
+            boolean title = s.getTitle().toLowerCase().contains(search.toLowerCase());
+
+            boolean lang = s.getLanguage().toLowerCase().equalsIgnoreCase(search.toLowerCase());
+
+            boolean tags = false;
+
+            for (String t : s.getTags()) { //see if its in tags
+                if (t.toLowerCase().contains(search.toLowerCase())) {
+                    tags = true;
+                    break;
+                }
+            }
+
+            boolean code = s.getCodeSnippet().toLowerCase().contains(search.toLowerCase());
+
+            if (title || lang || tags || code) {
                 searchedSnips.add(s);
             }
         }
@@ -469,7 +484,6 @@ public class MainScene extends StageScene {
                 }
             }
         });
-
 
 
         JFXButton saveButton = (JFXButton) lookup("#main_save");
